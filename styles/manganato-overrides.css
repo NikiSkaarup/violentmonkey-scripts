@@ -1,0 +1,10 @@
+body {
+  background-color: rgba(0, 0, 0, 0) !important;
+  border-color: currentcolor;
+  background-image: url("https://readmanganato.com/themes/hm/images/background-black.png") !important;
+  border-top: 0px !important;
+}
+
+body > div.body-site {
+  backdrop-filter: contrast(1.2) brightness(0.75);
+}

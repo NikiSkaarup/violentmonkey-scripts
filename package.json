@@ -1,0 +1,32 @@
+{
+  "name": "violentmonkey-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "serve": "npx http-server ./dist -s -c-1 --cors -p 8432 -a 127.0.0.1 -d false -i false",
+    "build": "node ./build.js",
+    "typescript": "npx tsc -w -noEmit --preserveWatchOutput --strict",
+    "build-watch": "npx nodemon --watch ./src -e ts --exec \"npm run build\"",
+    "styles": "npx nodemon --watch ./styles -e css --exec \"npx copyfiles ./styles/**.css ./dist\"",
+    "json": "npx nodemon --watch ./json -e json --exec \"npx copyfiles ./json/**.json ./dist\"",
+    "dev": "npx concurrently -n httpserver,typescript,styles,json,build -c cyan,magentaBright,green,blue,redBright \"npm run serve\" \"npm run typescript\" \"npm run styles\" \"npm run json\" \"npm run build-watch\"",
+    "start": "npm run dev"
+  },
+  "author": "nws",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^17.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
+    "@typescript-eslint/parser": "^5.8.1",
+    "concurrently": "^7.0.0",
+    "copyfiles": "^2.4.1",
+    "esbuild": "^0.14.11",
+    "eslint": "^8.6.0",
+    "eslint-config-greasemonkey": "^1.0.1",
+    "greasemonkey": "./types/greasemonkey",
+    "nodemon": "^2.0.15",
+    "typescript": "^4.5.4",
+    "violentmonkey": "./types/violentmonkey"
+  }
+}

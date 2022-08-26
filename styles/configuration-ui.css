@@ -1,0 +1,244 @@
+.nws {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: 1.25;
+
+  --primary: rgb(49, 42, 101);
+  --primary-light: rgb(84, 72, 173);
+  --primary-transparent: rgba(49, 42, 101, 0.5);
+  --light-gray: rgb(249, 249, 251);
+  --medium-gray: rgb(128, 128, 143);
+  --primary-gray: rgb(86, 86, 143);
+  --default-surface: var(--light-gray);
+  --font-size: 16px;
+  --checkbox-size: calc(var(--font-size) + 2px);
+  --checkbox-ink: var(--medium-gray);
+  --checkbox-ink-focused: var(--primary-gray);
+  --checkbox-checked-ink: var(--primary);
+  --border-radius: 2px;
+  --blur-light: blur(2px);
+  --blur-heavy: blur(4px);
+  --pad-light: 4px;
+  --pad-heavy: 8px;
+  --margin-light: 4px;
+  --margin-heavy: 8px;
+  --gap: 8px;
+  --border-width: 2px;
+}
+
+.nws[class*="nws"] {
+  font-size: var(--font-size) !important;
+  color: var(--light-gray) !important;
+  font-family: sans-serif;
+}
+
+h1.nws,
+h2.nws {
+  font-weight: 400;
+}
+
+button[class^="nws-"] {
+  border: none;
+  font-size: var(--font-size);
+  background-color: var(--primary);
+  color: var(--light-gray);
+  transition: background-color 0.125s, outline-color 0.125s;
+  padding: var(--pad-light);
+  border-radius: var(--border-radius);
+  outline: var(--border-width) solid transparent;
+  cursor: pointer;
+}
+
+button[class^="nws-"]:disabled {
+  background-color: var(--primary-transparent);
+}
+
+button[class^="nws-"]:disabled:hover {
+  cursor: not-allowed;
+}
+
+button[class^="nws-"]:not(:disabled):hover {
+  transition: background-color 0.075s, outline-color 0.05s;
+  background-color: var(--primary-light);
+  outline-color: var(--primary-transparent);
+}
+
+.nws.nws-checkbox-container {
+  --margin-end: calc(var(--font-size) * 0.5);
+}
+
+.nws.nws-label {
+  display: inline-flex;
+  position: relative;
+}
+
+.nws.nws-checkbox-container {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: var(--checkbox-size);
+  margin-inline-start: var(--margin-end);
+  position: relative;
+  width: var(--checkbox-size);
+}
+
+.nws.nws-checkbox-container > .nws.nws-checkbox[type="checkbox"] {
+  box-sizing: border-box;
+  height: 100%;
+  min-width: var(--checkbox-size);
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.nws.nws-checkbox-container > .nws.nws-checkbox[type="checkbox"] + svg {
+  background-color: var(--light-gray);
+  border: var(--border-width) solid var(--checkbox-ink);
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
+  fill: none;
+  height: 100%;
+  pointer-events: none;
+  position: absolute;
+  stroke: none;
+  stroke-width: 3.12px;
+  width: 100%;
+}
+
+.nws.nws-checkbox-container > .nws.nws-checkbox[type="checkbox"]:focus + svg {
+  border-color: var(--checkbox-ink-focused);
+}
+
+.nws.nws-checkbox-container > .nws.nws-checkbox[type="checkbox"]:checked + svg {
+  background-color: var(--checkbox-checked-ink);
+  border-color: var(--checkbox-checked-ink);
+  stroke: var(--default-surface);
+}
+
+.nws.nws-sub-container-header,
+.nws.nws-sub-container-content,
+.nws.nws-header,
+.nws.nws-border-bottom {
+  border-bottom: 1px solid var(--primary-transparent);
+}
+
+div.nws.nws-backdrop,
+div.nws.nws-configuration-window-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overscroll-behavior: none;
+  background-color: transparent !important;
+}
+
+.nws.nws-label {
+  display: flex;
+}
+
+.nws.nws-sub-container {
+  display: flex;
+  flex-flow: column nowrap;
+  overscroll-behavior: none;
+  scrollbar-gutter: stable;
+}
+
+.nws.nws-sub-container-content {
+  padding-top: var(--pad-heavy);
+}
+
+.nws.nws-sub-container-extra {
+  overflow-y: auto;
+  padding-right: var(--pad-light);
+}
+
+.nws.nws-form-group {
+  display: flex;
+  flex-flow: row nowrap;
+  margin-bottom: var(--margin-heavy);
+}
+
+.nws.nws-form-group.nws-form-group-horizontal {
+  flex-flow: column nowrap;
+}
+
+.nws.nws-footer-heading {
+  font-size: calc(var(--font-size) * 0.75) !important;
+}
+
+.nws.nws-footer {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.nws.nws-backdrop {
+  z-index: 99998;
+  backdrop-filter: var(--blur-heavy);
+}
+
+.nws.nws-configuration-window-container {
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nws.nws-configuration-window {
+  display: flex;
+  flex-flow: column;
+  width: calc(var(--font-size) * 50);
+  max-width: 700px;
+  max-height: 90vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  padding: var(--pad-heavy);
+  border-radius: var(--border-radius);
+  color: var(--light-gray);
+  box-shadow: 5px 5px 16px 5px rgba(0, 0, 0, 0.25);
+}
+
+.nws.nws-buttons-container {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--pad-heavy);
+}
+
+.nws.nws-sub-buttons-container {
+  display: flex;
+  gap: var(--gap);
+}
+
+.nws.nws-textarea {
+  font-size: var(--font-size);
+  font-family: "jetBrains Mono", "DejaVu Sans Mono";
+  white-space: pre;
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  padding: var(--pad-light);
+  border-radius: var(--border-radius);
+  resize: none;
+  color: var(--light-gray);
+  scrollbar-gutter: stable;
+  overscroll-behavior: none;
+}
+
+.nws.nws-header {
+  font-size: calc(var(--font-size) * 1.4) !important;
+  margin-bottom: var(--margin-heavy);
+}
+
+.nws.nws-space-between {
+  justify-content: space-between;
+}
+
+.nws.nws-padding-bottom {
+  padding-bottom: var(--pad-heavy);
+}
+
+.nws.nws-padding-top {
+  padding-top: var(--pad-heavy);
+}

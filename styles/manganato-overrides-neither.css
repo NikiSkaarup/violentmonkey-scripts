@@ -1,0 +1,60 @@
+body>div.body-site {
+  padding-bottom: 120px;
+}
+
+.panel-content-genres>.content-genres-item>.genres-item-info {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 4px;
+  box-sizing: border-box;
+  padding: 4px;
+  background-color: rgb(24, 26, 27);
+  float: none;
+  flex-grow: 1;
+}
+
+.panel-content-genres {
+  display: grid;
+  grid-gap: 8px;
+  grid-template-columns: calc(50% - 4px) calc(50% - 4px);
+}
+
+.panel-content-genres>.content-genres-item * {
+  float: unset !important;
+}
+
+.panel-content-genres>.content-genres-item {
+  margin: 0;
+  width: auto;
+  background-color: rgb(24, 26, 27);
+  transition: background-color linear .15s;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.panel-content-genres>.content-genres-item.nws-genre-all-active-item {
+  background-color: rgb(4, 126, 123);
+  transition: background-color linear .0s;
+}
+
+.panel-content-genres>.content-genres-item>.genres-item-img {
+  margin: 0;
+}
+
+.panel-content-genres>.content-genres-item>.genres-item-info>.genres-item-chap,
+.panel-content-genres>.content-genres-item>.genres-item-info>.genres-item-view-time,
+.panel-content-genres>.content-genres-item>.genres-item-info>h3 {
+  min-height: 22px;
+  height: 22px;
+}
+
+.panel-content-genres>.content-genres-item>.genres-item-info>.genres-item-description {
+  height: auto;
+  flex-grow: 1;
+}
+
+.panel-content-genres>.content-genres-item>.genres-item-info>.genres-item-description>i.genres-item-description-linear,
+.panel-content-genres>.content-genres-item>.genres-item-info>.genres-item-readmore {
+  display: none;
+}

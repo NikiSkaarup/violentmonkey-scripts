@@ -1,0 +1,28 @@
+.container-chapter-reader {
+  margin-bottom: 60px;
+}
+
+.container-chapter-reader>img {
+  min-width: 630px;
+}
+
+.overrides-header-container,
+.overrides-footer-container {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding-bottom: 60px;
+}
+
+.overrides-header-container>div,
+.overrides-footer-container>div {
+  background: none;
+}
+
+.container {
+  max-width: 100%;
+}
+
+.container>.panel-navigation,
+.container>.panel-breadcrumb {
+  display: flex;
+  justify-content: center;
+}

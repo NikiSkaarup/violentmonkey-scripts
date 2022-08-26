@@ -1,0 +1,12 @@
+body > div.body-site {
+  padding-bottom: 120px;
+}
+
+div#panel-description-linear > i {
+  background: transparent;
+  background-image: linear-gradient(transparent, #fff 95%);
+}
+
+div#panel-description-linear::after {
+  background-color: #fff;
+}
