@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name        manga reading script
 // @namespace   https://skaarup.dev
+// @resource    configuration-ui http://localhost:8432/styles/configuration-ui.css
 // @resource    manganatoOverrides http://localhost:8432/styles/manganato-overrides.css
 // @resource    manganatoOverridesNeither http://localhost:8432/styles/manganato-overrides-neither.css
 // @resource    manganatoOverridesChapter http://localhost:8432/styles/manganato-overrides-chapter.css
@@ -439,7 +440,6 @@ const mangaReadingScript = () => {
   };
 
   const genreAllBrowse = (direction: string) => {
-    const oldIndex = genreAllItemsIndex;
     switch (direction) {
       case 'ArrowUp':
         if (genreAllItemsIndex < 2) return;
@@ -466,15 +466,7 @@ const mangaReadingScript = () => {
         genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
         break;
     }
-    if (oldIndex === genreAllItemsIndex) return;
-    const viewportHalfHeight = (window.visualViewport.height / 2);
-    const halfHeight = genreAllItems[genreAllItemsIndex].clientHeight / 2;
-    const top = genreAllItems[genreAllItemsIndex].offsetTop + halfHeight - viewportHalfHeight;
-    window.scrollTo({
-      top: top,
-      left: 0,
-      behavior: 'smooth'
-    });
+    genreAllItems[genreAllItemsIndex].scrollIntoView({ behavior: "smooth", block: "center" });
     window.getSelection()?.removeAllRanges();
   }
 
