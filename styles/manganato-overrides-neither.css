@@ -8,15 +8,15 @@ body>div.body-site {
   gap: 4px;
   box-sizing: border-box;
   padding: 4px;
-  background-color: rgb(24, 26, 27);
+  /*background-color: rgb(24, 26, 27, 0.4);*/
   float: none;
   flex-grow: 1;
 }
 
 .panel-content-genres {
   display: grid;
-  grid-gap: 8px;
-  grid-template-columns: calc(50% - 4px) calc(50% - 4px);
+  grid-gap: 12px;
+  grid-template-columns: calc(50% - 6px) calc(50% - 6px);
 }
 
 .panel-content-genres>.content-genres-item * {
@@ -24,9 +24,11 @@ body>div.body-site {
 }
 
 .panel-content-genres>.content-genres-item {
+  backdrop-filter: blur(3px);
   margin: 0;
   width: auto;
-  background-color: rgb(24, 26, 27);
+  background-color: rgb(24, 26, 27, 0.2);
+  background: none;
   transition: background-color linear .15s;
   padding: 4px;
   display: flex;
@@ -34,7 +36,7 @@ body>div.body-site {
 }
 
 .panel-content-genres>.content-genres-item.nws-genre-all-active-item {
-  background-color: rgb(4, 126, 123);
+  background-color: rgb(4, 126, 123, 0.3);
   transition: background-color linear .0s;
 }
 
