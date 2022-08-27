@@ -17,8 +17,8 @@ type debugType = (message: unknown, name: string) => void;
 
 type resource = {
   name: string;
+  data: string;
   urls: string[];
-  url: string;
   universal?: boolean;
   at: 'universal' | 'site';
   site?: string;

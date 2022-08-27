@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name        floatplane script
 // @namespace   https://skaarup.dev
+// @resource    configuration-ui http://localhost:8432/styles/configuration-ui.css
 // #@icon        https://skaarup.dev/usericons/floatplane-script-icon.png
 // @homepageURL https://skaarup.dev/userscripts
 // @updateURL   http://localhost:8432/floatplane-script.user.js
@@ -19,7 +20,6 @@
 // @grant       GM_getResourceText
 // @grant       GM_registerMenuCommand
 // @grant       GM_notification
-// @grant       GM_xmlhttpRequest
 // @inject-into content
 // @run-at      document-start
 // @noframes

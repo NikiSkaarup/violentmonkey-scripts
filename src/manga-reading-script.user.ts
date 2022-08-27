@@ -25,7 +25,6 @@
 // @grant       GM_getResourceText
 // @grant       GM_registerMenuCommand
 // @grant       GM_notification
-// @grant       GM_xmlhttpRequest
 // @inject-into content
 // @run-at      document-start
 // @noframes
@@ -33,7 +32,6 @@
 // ==/UserScript==
 
 /*
-  TODO: switch to utilizing "@resource" data instead of a http request, means no more webserver and no more grant "GM_xmlhttpRequest"
   TODO: store data in json, for more customization per manga.
 */
 
@@ -119,40 +117,40 @@ const mangaReadingScript = () => {
   const styleResources: manga_reading.resourceType[] = [
     {
       name: 'manganatoOverrides',
+      data: '',
       urls: ['https://readmanganato.com', 'https://manganato.com'],
-      url: 'http://localhost:8432/styles/manganato-overrides.css',
       at: 'site',
       site: 'global',
       shouldLoad: shouldLoad,
     },
     {
       name: 'manganatoOverridesNeither',
+      data: '',
       urls: ['https://readmanganato.com', 'https://manganato.com'],
-      url: 'http://localhost:8432/styles/manganato-overrides-neither.css',
       at: 'site',
       site: 'neither',
       shouldLoad: shouldLoad,
     },
     {
       name: 'manganatoOverridesChapter',
+      data: '',
       urls: ['https://readmanganato.com', 'https://manganato.com'],
-      url: 'http://localhost:8432/styles/manganato-overrides-chapter.css',
       at: 'site',
       site: 'chapter',
       shouldLoad: shouldLoad,
     },
     {
       name: 'manganatoOverridesManga',
+      data: '',
       urls: ['https://readmanganato.com', 'https://manganato.com'],
-      url: 'http://localhost:8432/styles/manganato-overrides-manga.css',
       at: 'site',
       site: 'manga',
       shouldLoad: shouldLoad,
     },
     {
       name: 'manganatoOverridesChapterOrManga',
+      data: '',
       urls: ['https://readmanganato.com', 'https://manganato.com'],
-      url: 'http://localhost:8432/styles/manganato-overrides-chapter-or-manga.css',
       at: 'site',
       site: 'chapterOrManga',
       shouldLoad: shouldLoad,

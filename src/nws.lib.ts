@@ -4,15 +4,15 @@ export default (() => {
   const configGlobals: configuration_ui.globalsType = {
     uiInitialized: false,
     configurationWindowOpen: false,
-    debugging: true,
+    debugging: false,
   };
 
   const objects: stringKeyedObject = {};
   const styleResources: resource[] = [
     {
-      name: 'stylesheet',
+      name: 'configuration-ui',
+      data: '',
       urls: [],
-      url: 'http://localhost:8432/styles/configuration-ui.css',
       universal: true,
       at: 'universal',
     },
@@ -232,6 +232,29 @@ export default (() => {
 
   const shouldLoad = (resource: resource): boolean => resource.at === 'universal' || resource.urls.find((url) => window.location.href.includes(url)) !== undefined;
 
+  const loadScript = (resource: resource) => {
+    resource.data = GM_getResourceText(resource.name);
+    const script = createElement<HTMLScriptElement>('script');
+    script.setAttribute('type', 'text/javascript');
+    script.setAttribute('data-name', resource.name);
+    script.innerHTML = resource.data;
+    document.body.append(script);
+  }
+
+  const loadStyle = (resource: resource) => {
+    resource.data = GM_getResourceText(resource.name);
+    const style = createElement<HTMLScriptElement>('style');
+    style.setAttribute('type', 'text/css');
+    style.setAttribute('data-name', resource.name);
+    style.innerHTML = resource.data;
+    document.body.append(style);
+  }
+
+  const loadJSON = (resource: resource) => {
+    resource.data = GM_getResourceText(resource.name);
+    objects[resource.name] = resource.data;
+  }
+
   const loadResource = async (resource: resource, resourceType: resourceType) => {
     const loadResource = resource.shouldLoad !== undefined ? resource.shouldLoad(resource) : shouldLoad(resource);
 
@@ -241,42 +264,19 @@ export default (() => {
     }
     debug(`Loading resource: ${resource.name} of type: ${resourceType}...`);
 
-    let onload: (response: vm_responseObjectType) => void;
     switch (resourceType) {
       case 'scripts':
-        onload = (response: vm_responseObjectType) => {
-          const script = createElement<HTMLScriptElement>('script');
-          script.setAttribute('type', 'text/javascript');
-          script.setAttribute(key.dataAttr, `nws - ${resource.name}`);
-          script.innerHTML = response.responseText;
-          document.body.append(script);
-        };
+        loadScript(resource);
         break;
       case 'stylesheets':
-        onload = (response: vm_responseObjectType) => {
-          const style = createElement<HTMLStyleElement>('style');
-          style.setAttribute('type', 'text/css');
-          style.setAttribute(key.dataAttr, `nws - ${resource.name}`);
-          style.innerHTML = response.responseText;
-          document.body.append(style);
-        };
+        loadStyle(resource);
         break;
       case 'json':
-        onload = (response: vm_responseObjectType) => {
-          const parsedData = JSON.parse(response.responseText);
-          objects[resource.name] = parsedData;
-        };
+        loadJSON(resource);
         break;
       default:
-        onload = () => debug('onload: defaulted');
+        break;
     }
-
-    const request: vm_xmlhttpRequestType = {
-      url: resource.url,
-      method: 'GET',
-      onload,
-    }
-    await GM_xmlhttpRequest(request);
     debug(`Loaded resource: ${resource.name} of type: ${resourceType}.`);
   }
 
