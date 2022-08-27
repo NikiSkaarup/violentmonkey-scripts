@@ -23,8 +23,3 @@ When developing copy the url for the script into `Install from URL` in Violentmo
 
 - [nws lib](src/nws.lib.ts), used by other scripts for configuration UI and initialization.
 - [manga reading script](src/manga-reading-script.user.ts)
-
-
-## TODO
-
-- [ ] fix toggling of Debugging checkbox

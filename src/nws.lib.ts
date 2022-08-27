@@ -120,8 +120,8 @@ export default (() => {
     ui.debuggingCheckbox.type = 'checkbox';
     ui.debuggingCheckbox.id = debuggingInputId;
     ui.debuggingCheckbox.checked = configGlobals.debugging;
-    ui.debuggingCheckbox.addEventListener('change', (event) => {
-      configGlobals.debugging = (event.target as HTMLInputElement).checked;
+    ui.debuggingCheckbox.addEventListener('change', () => {
+      configGlobals.debugging = ui.debuggingCheckbox.checked;
       setDebugging(configGlobals.debugging);
     });
     debuggingCheckboxContainer.appendChild(ui.debuggingCheckbox);
@@ -154,9 +154,8 @@ export default (() => {
     ui.btnClose.onclick = closeConfig;
     divSubButtons.appendChild(ui.btnClose);
 
-    ui.configurationWindowContainer.onclick = (event) =>
-      event.target === ui.configurationWindowContainer && closeConfig();
-
+    ui.configurationWindowContainer.addEventListener('click', (event) =>
+      event.target === ui.configurationWindowContainer && closeConfig());
     ui.configurationWindowContainer.appendChild(ui.configurationWindow);
   }
 
@@ -408,13 +407,13 @@ export default (() => {
     console.log('NWS lib - Initializing...');
     switch (document.readyState) {
       case 'complete':
-        await onInit(callback)
+        await onInit(callback);
         break;
       case 'interactive':
-        await onInit(callback)
+        await onInit(callback);
         break;
       case 'loading':
-        setTimeout(init, 0, callback)
+        setTimeout(init, 0, callback);
         break;
     }
   }
