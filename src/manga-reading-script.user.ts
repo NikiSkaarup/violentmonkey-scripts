@@ -25,6 +25,7 @@
 // @grant       GM_getResourceText
 // @grant       GM_registerMenuCommand
 // @grant       GM_notification
+// @grant       GM_openInTab
 // @inject-into content
 // @run-at      document-start
 // @noframes
@@ -431,11 +432,10 @@ const mangaReadingScript = () => {
     }
   }
 
-  const genreAllGoToManga = () => {
-    const aTag = genreAllItems[genreAllItemsIndex].querySelector<HTMLAnchorElement>('.genres-item-img');
-    if (aTag) {
-      aTag.target = '_blank';
-      aTag.click();
+  const genreAllOpenMangaInNewTab = () => {
+    const anchor = genreAllItems[genreAllItemsIndex].querySelector<HTMLAnchorElement>('.genres-item-img');
+    if (anchor) {
+      GM_openInTab(anchor.href, { active: false, insert: true });
     }
   };
 
@@ -509,7 +509,7 @@ const mangaReadingScript = () => {
         genreAllBrowse(e.code);
         return true;
       case e.code === 'Enter' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
-        genreAllGoToManga();
+        genreAllOpenMangaInNewTab();
         return true;
       case e.code === 'Quote' && shortcutHelpers.shiftModifier(e) && chapter:
         resize();

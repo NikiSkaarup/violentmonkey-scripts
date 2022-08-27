@@ -73,7 +73,7 @@ type vm_resourceType = {
 type vm_scriptType = {
   description: string;
   excludes: string[];
-  inlcudes: string[];
+  includes: string[];
   matches: string[];
   name: string;
   namespace: string;
@@ -101,10 +101,10 @@ type vm_infoType = {
 }
 
 type openInNewTabOptionsType = {
-  active: boolean;
-  container: number;
-  insert: boolean;
-  pinned: boolean;
+  active?: boolean;
+  container?: number;
+  insert?: boolean;
+  pinned?: boolean;
 };
 
 type openInNewTabReturnType = {
@@ -142,8 +142,8 @@ function GM_addElement(parentNode: Node | Element | ShadowRoot, tagName: string,
 
 function GM_addStyle(css: string): HTMLStyleElement;
 
-function GM_openInTab(url: string, options: openInNewTabOptionsType): openInNewTabReturnType;
-function GM_openInTab(url: string, openInBackground: boolean): openInNewTabReturnType;
+function GM_openInTab(url: string, options?: openInNewTabOptionsType): openInNewTabReturnType;
+function GM_openInTab(url: string, openInBackground?: boolean): openInNewTabReturnType;
 
 function GM_registerMenuCommand(caption: string, onClick: (e: MouseEvent | KeyboardEvent) => void): void;
 
