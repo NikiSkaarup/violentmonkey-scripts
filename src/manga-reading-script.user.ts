@@ -379,7 +379,7 @@ const mangaReadingScript = () => {
   const setActiveSite = () => {
     debug(`Setting active site...`);
     const href = window.location.href;
-    for (const site of Object.values(globals.sites)) {
+    for (const site of Object.values<manga_reading.siteType>(globals.sites)) {
       site.active = site.activeRegex.test(href);
       if (!site.active) continue;
       const atChapter = site.atChapterRegex.test(href);
