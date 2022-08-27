@@ -1,12 +1,14 @@
-body > div.body-site {
+body>div.body-site {
   padding-bottom: 120px;
 }
 
-div#panel-description-linear > i {
-  background: transparent;
-  background-image: linear-gradient(transparent, #fff 95%);
+div#panel-story-info-description {
+  max-height: none !important;
 }
 
-div#panel-description-linear::after {
-  background-color: #fff;
+
+div#panel-description-linear,
+span#panel-story-info-description-show-more,
+span#panel-story-info-description-show-less {
+  display: none !important;
 }
