@@ -433,8 +433,10 @@ const mangaReadingScript = () => {
 
   const genreAllGoToManga = () => {
     const aTag = genreAllItems[genreAllItemsIndex].querySelector<HTMLAnchorElement>('.genres-item-img');
-    aTag.target = '_blank';
-    aTag.click();
+    if (aTag) {
+      aTag.target = '_blank';
+      aTag.click();
+    }
   };
 
   const genreAllBrowse = (direction: string) => {
@@ -495,19 +497,15 @@ const mangaReadingScript = () => {
         genreAllGoToPage(e.code);
         return true;
       case e.code === 'ArrowUp' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
-        e.preventDefault();
         genreAllBrowse(e.code);
         return true;
       case e.code === 'ArrowDown' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
-        e.preventDefault();
         genreAllBrowse(e.code);
         return true;
       case e.code === 'ArrowLeft' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
-        e.preventDefault();
         genreAllBrowse(e.code);
         return true;
       case e.code === 'ArrowRight' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
-        e.preventDefault();
         genreAllBrowse(e.code);
         return true;
       case e.code === 'Enter' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
