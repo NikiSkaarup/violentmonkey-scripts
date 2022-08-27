@@ -386,7 +386,7 @@ export default (() => {
     registerKeyUp('ConfigClosed', { name: `${namePrefix} - config closed`, callback: configClosedShortcuts });
   };
 
-  const onInit = async (callback: () => void) => {
+  const onInit = async (callback: () => Promise<void>) => {
     try {
       setDebugging(GM_getValue<boolean>(key.debugging, false));
       console.log(`NWS lib - ${GM_info.script.name} - Loading...`);
@@ -395,15 +395,15 @@ export default (() => {
       registerResources();
       attachFocusEvent();
       attachShortcutEvents();
-      await loadResources();
       console.log(`NWS lib - ${GM_info.script.name} - Loaded.`);
-      callback();
+      await callback();
+      await loadResources();
     } catch (e) {
       console.log('NWS lib - Error:', e);
     }
   }
 
-  const init = async (callback: () => void) => {
+  const init = async (callback: () => Promise<void>) => {
     console.log('NWS lib - Initializing...');
     switch (document.readyState) {
       case 'complete':
