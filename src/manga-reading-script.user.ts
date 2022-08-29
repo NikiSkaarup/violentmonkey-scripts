@@ -34,6 +34,7 @@
 
 /*
   TODO: store data in json, for more customization per manga.
+  TODO: add a togglable reading mode that lets you press once to scroll each image which will at most 100vh tall
 */
 
 import nws from './nws.lib';
