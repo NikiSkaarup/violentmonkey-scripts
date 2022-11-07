@@ -13,7 +13,7 @@
 // @downloadURL http://localhost:8432/manga-reading-script.user.js
 // @match       https://manganelo.com/*
 // @match       https://readmanganato.com/*
-// @match       https://readmanganato.com/*
+// @match       https://chapmanganato.com/*
 // @match       https://manganato.com/*
 // @grant       none
 // @version     1.0
@@ -57,7 +57,7 @@ const mangaReadingScript = () => {
       atMangaRegex: RegExp(''),
       titleLinkSelector: '',
       nextChapterSelector: '',
-      prevChapterSelector: '',
+      prevChapterSelector: ''
     },
     titleList: [],
     sites: {
@@ -67,11 +67,12 @@ const mangaReadingScript = () => {
         active: false,
         at: 'neither',
         activeRegex: /https:\/\/(?:read)?manganato\.com\S*/,
-        atChapterRegex: /https:\/\/(?:read)?manganato.com\/manga-[\w.\-~%]+\/chapter-[\d.-]+/,
+        atChapterRegex:
+          /https:\/\/(?:read)?manganato.com\/manga-[\w.\-~%]+\/chapter-[\d.-]+/,
         atMangaRegex: /https:\/\/(?:read)?manganato.com\/manga-[\w.\-~%]+$/,
         titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
         nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
-        prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
+        prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h'
       },
       manganelo: {
         name: 'manganelo',
@@ -79,18 +80,22 @@ const mangaReadingScript = () => {
         active: false,
         at: 'neither',
         activeRegex: /https:\/\/manganelo\.com\S*/,
-        atChapterRegex: /https:\/\/(?:manganelo\.com)\/chapter\/[\w.\-~%]+\/[\w.\-~%]+/,
-        atMangaRegex: /https:\/\/(?:manganelo\.com)\/(?:manga\/[\w.\-~%]+|read-[\w.\-~%]+)/,
+        atChapterRegex:
+          /https:\/\/(?:manganelo\.com)\/chapter\/[\w.\-~%]+\/[\w.\-~%]+/,
+        atMangaRegex:
+          /https:\/\/(?:manganelo\.com)\/(?:manga\/[\w.\-~%]+|read-[\w.\-~%]+)/,
         titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
         nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
-        prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
-      },
-    },
+        prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h'
+      }
+    }
   };
 
   const shouldLoad = (resource: resource) => {
-    let loadResource = resource.at === 'universal'
-      || resource.urls.find((url) => window.location.href.includes(url)) !== undefined;
+    let loadResource =
+      resource.at === 'universal' ||
+      resource.urls.find((url) => window.location.href.includes(url)) !==
+        undefined;
 
     if (loadResource) {
       switch (resource.site) {
@@ -114,7 +119,7 @@ const mangaReadingScript = () => {
       }
     }
     return loadResource;
-  }
+  };
 
   const styleResources: manga_reading.resourceType[] = [
     {
@@ -123,7 +128,7 @@ const mangaReadingScript = () => {
       urls: ['https://readmanganato.com', 'https://manganato.com'],
       at: 'site',
       site: 'global',
-      shouldLoad: shouldLoad,
+      shouldLoad: shouldLoad
     },
     {
       name: 'manganatoOverridesNeither',
@@ -131,7 +136,7 @@ const mangaReadingScript = () => {
       urls: ['https://readmanganato.com', 'https://manganato.com'],
       at: 'site',
       site: 'neither',
-      shouldLoad: shouldLoad,
+      shouldLoad: shouldLoad
     },
     {
       name: 'manganatoOverridesChapter',
@@ -139,7 +144,7 @@ const mangaReadingScript = () => {
       urls: ['https://readmanganato.com', 'https://manganato.com'],
       at: 'site',
       site: 'chapter',
-      shouldLoad: shouldLoad,
+      shouldLoad: shouldLoad
     },
     {
       name: 'manganatoOverridesManga',
@@ -147,7 +152,7 @@ const mangaReadingScript = () => {
       urls: ['https://readmanganato.com', 'https://manganato.com'],
       at: 'site',
       site: 'manga',
-      shouldLoad: shouldLoad,
+      shouldLoad: shouldLoad
     },
     {
       name: 'manganatoOverridesChapterOrManga',
@@ -155,37 +160,47 @@ const mangaReadingScript = () => {
       urls: ['https://readmanganato.com', 'https://manganato.com'],
       at: 'site',
       site: 'chapterOrManga',
-      shouldLoad: shouldLoad,
-    },
+      shouldLoad: shouldLoad
+    }
   ];
   const jsonResources: manga_reading.resourceType[] = [];
   const scriptResources: manga_reading.resourceType[] = [];
 
   const defaults: { titleList: string[] } = {
-    titleList: [],
+    titleList: []
   };
 
   const key = {
     firstRun: 'firstRun',
     titleList: 'titleList',
-    dataAttr: 'data-nws-manga-reading-script',
-  }
+    dataAttr: 'data-nws-manga-reading-script'
+  };
 
   const ui = {
     titleList: document.createElement('textarea'),
-    subTitle: document.createElement('p'),
+    subTitle: document.createElement('p')
   };
 
-  const escapeRegExp = (input: string) => input.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
-  const setLocation = (url: string) => window.location = url as unknown as Location;
-  const setTitleList = () => ui.titleList.value = globals.titleList.join('\r\n');
+  const escapeRegExp = (input: string) =>
+    input.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+  const setLocation = (url: string) =>
+    (window.location = url as unknown as Location);
+  const setTitleList = () =>
+    (ui.titleList.value = globals.titleList.join('\r\n'));
   const atNeither = () => globals.currentSite.at === 'neither';
   const atChapter = () => globals.currentSite.at === 'chapter';
   const atManga = () => globals.currentSite.at === 'manga';
   const atChapterOrManga = () => atChapter() || atManga();
-  const getChapterList = () => document.querySelector('div.panel-story-chapter-list > ul.row-content-chapter') as HTMLElement;
+  const getChapterList = () =>
+    document.querySelector(
+      'div.panel-story-chapter-list > ul.row-content-chapter'
+    ) as HTMLElement;
 
-  const setStyle = (array: NodeListOf<HTMLElement>, style: string, value: string) => {
+  const setStyle = (
+    array: NodeListOf<HTMLElement>,
+    style: string,
+    value: string
+  ) => {
     const arr = [...array];
     for (const item of arr) {
       (item.style as unknown as stringKeyedObject)[style] = value;
@@ -200,73 +215,112 @@ const mangaReadingScript = () => {
     const width = "'auto w' to fit images to page width.";
     const inp = prompt(`${title}\n${height}\n${width}`);
     const input = inp?.valueOf().toLowerCase();
-    if (input === null || input === "0") return;
+    if (input === null || input === '0') return;
 
     const pageWidth = document.body.clientWidth;
-    const images = document.querySelectorAll('.container-chapter-reader img') as NodeListOf<HTMLImageElement>;
+    const images = document.querySelectorAll(
+      '.container-chapter-reader img'
+    ) as NodeListOf<HTMLImageElement>;
 
     if (input === 'auto w' || input === 'w') {
-      images.forEach(image => image.style.width = pageWidth / image.width * 100 + '%');
+      images.forEach(
+        (image) => (image.style.width = (pageWidth / image.width) * 100 + '%')
+      );
     } else if (input === 'auto h' || input === 'h') {
       for (const image of images) {
-        image.style.width = pageWidth / image.width * 100 + '%';
-        image.style.width = window.visualViewport.height / image.height * 100 + '%';
+        image.style.width = (pageWidth / image.width) * 100 + '%';
+        image.style.width =
+          (window.visualViewport.height / image.height) * 100 + '%';
       }
     } else {
-      images.forEach(image => image.style.width = input + '%');
+      images.forEach((image) => (image.style.width = input + '%'));
     }
-  }
+  };
 
   const setSubTitle = () => {
     const titleText = atChapterOrManga() ? globals.currentTitle : 'No title';
     ui.subTitle.innerText = `Current Title(affected by buttons): ${titleText}`;
-  }
+  };
 
   const registerConfig = () => {
-    const subContainer = nws.createHTMLElement('div', 'nws-sub-container-content');
-    const title = nws.createHTMLElement('p', 'nws-current-title nws-border-bottom nws-padding-bottom');
+    const subContainer = nws.createHTMLElement(
+      'div',
+      'nws-sub-container-content'
+    );
+    const title = nws.createHTMLElement(
+      'p',
+      'nws-current-title nws-border-bottom nws-padding-bottom'
+    );
     title.innerText = `${GM_info.script.name} version ${GM_info.script.version} configuration`;
     subContainer.appendChild(title);
-    ui.subTitle = nws.createElement<HTMLParagraphElement>('p', 'nws-current-title nws-padding-top nws-padding-bottom');
+    ui.subTitle = nws.createElement<HTMLParagraphElement>(
+      'p',
+      'nws-current-title nws-padding-top nws-padding-bottom'
+    );
     setSubTitle();
     subContainer.appendChild(ui.subTitle);
 
-    const titleListFormGroup = nws.createHTMLElement('div', 'nws-form-group nws-form-group-horizontal');
+    const titleListFormGroup = nws.createHTMLElement(
+      'div',
+      'nws-form-group nws-form-group-horizontal'
+    );
     subContainer.appendChild(titleListFormGroup);
     const label = nws.createElement<HTMLLabelElement>('label', 'nws-label');
     label.innerText = 'Titles to remove gaps from:';
     label.htmlFor = key.titleList;
-    ui.titleList = nws.createElement<HTMLTextAreaElement>('textarea', 'nws-textarea nws-title-list');
+    ui.titleList = nws.createElement<HTMLTextAreaElement>(
+      'textarea',
+      'nws-textarea nws-title-list'
+    );
     ui.titleList.id = key.titleList;
     ui.titleList.value = globals.titleList.join('\r\n');
     ui.titleList.rows = 12;
     titleListFormGroup.appendChild(label);
     titleListFormGroup.appendChild(ui.titleList);
 
-    const divButtons = nws.createHTMLElement('div', 'nws-buttons-container nws-space-between nws-padding-bottom');
+    const divButtons = nws.createHTMLElement(
+      'div',
+      'nws-buttons-container nws-space-between nws-padding-bottom'
+    );
     subContainer.appendChild(divButtons);
 
-    const btnRemove = nws.createElement<HTMLButtonElement>('button', 'nws-button nws-remove');
+    const btnRemove = nws.createElement<HTMLButtonElement>(
+      'button',
+      'nws-button nws-remove'
+    );
     btnRemove.innerText = 'Remove Current Title';
     btnRemove.onclick = removeTitle;
     btnRemove.disabled = atNeither();
     divButtons.appendChild(btnRemove);
 
-    const btnAdd = nws.createElement<HTMLButtonElement>('button', 'nws-button nws-add');
+    const btnAdd = nws.createElement<HTMLButtonElement>(
+      'button',
+      'nws-button nws-add'
+    );
     btnAdd.innerText = 'Add Current Title';
     btnAdd.onclick = addTitle;
     btnAdd.disabled = atNeither();
     divButtons.appendChild(btnAdd);
 
-    const divSubButtons = nws.createHTMLElement('div', 'nws-sub-buttons-container');
+    const divSubButtons = nws.createHTMLElement(
+      'div',
+      'nws-sub-buttons-container'
+    );
     divButtons.appendChild(divSubButtons);
 
-    const btnReset = nws.createElement<HTMLButtonElement>('button', 'nws-button nws-cancel');
+    const btnReset = nws.createElement<HTMLButtonElement>(
+      'button',
+      'nws-button nws-cancel'
+    );
     btnReset.innerText = 'Reset';
-    btnReset.onclick = () => ui.titleList.value = globals.titleList.join('\r\n');
+    btnReset.onclick = () =>
+      (ui.titleList.value = globals.titleList.join('\r\n'));
     divSubButtons.appendChild(btnReset);
 
-    const btnSave = nws.createElement<HTMLButtonElement>('button', 'nws-button nws-save');
+    const btnSave = nws.createElement<HTMLButtonElement>(
+      'button',
+      'nws-button nws-save'
+    );
     btnSave.innerText = 'Save';
     btnSave.onclick = saveTitles;
     divSubButtons.appendChild(btnSave);
@@ -276,41 +330,50 @@ const mangaReadingScript = () => {
       btnRemove.disabled = atNeither();
       btnAdd.disabled = atNeither();
     });
-  }
+  };
 
   const addTitle = () => {
     const trimmedValue = ui.titleList.value.trim();
     const taTitleListValue = trimmedValue.split(/\r?\n/);
-    const includes = taTitleListValue.includes(globals.currentTitle)
+    const includes = taTitleListValue.includes(globals.currentTitle);
     if (includes) return;
 
     const curTAVal = trimmedValue.length > 0 ? trimmedValue + '\r\n' : '';
     ui.titleList.value = curTAVal + globals.currentTitle;
-  }
+  };
 
   const saveTitles = () => {
-    globals.titleList = [...new Set(ui.titleList.value.trim().split(/\r?\n/).sort())];
+    globals.titleList = [
+      ...new Set(ui.titleList.value.trim().split(/\r?\n/).sort())
+    ];
     GM_setValue(key.titleList, JSON.stringify(globals.titleList));
     if (atChapter()) removeMargins();
-  }
+  };
 
   const removeTitle = () => {
     const curTAVal = ui.titleList.value.trim();
-    const regex = new RegExp(escapeRegExp(globals.currentTitle) + '\\r?\\n?', 'gi');
+    const regex = new RegExp(
+      escapeRegExp(globals.currentTitle) + '\\r?\\n?',
+      'gi'
+    );
     ui.titleList.value = curTAVal.replace(regex, '');
-  }
+  };
 
   const goToFirstChapter = () => {
     if (!globals.sites.manganato.active) return;
     const firstChapter = getChapterList().lastElementChild as HTMLElement;
-    const firstChapterLink = firstChapter.querySelector('a.chapter-name') as HTMLAnchorElement | undefined;
+    const firstChapterLink = firstChapter.querySelector('a.chapter-name') as
+      | HTMLAnchorElement
+      | undefined;
     if (firstChapterLink) setLocation(firstChapterLink.href);
   };
 
   const goToLatestChapter = () => {
     if (!globals.sites.manganato.active) return;
     const latestChapter = getChapterList().firstElementChild as HTMLElement;
-    const latestChapterLink = latestChapter.querySelector('.chapter-name') as HTMLAnchorElement | undefined;
+    const latestChapterLink = latestChapter.querySelector('.chapter-name') as
+      | HTMLAnchorElement
+      | undefined;
     if (latestChapterLink) setLocation(latestChapterLink.href);
   };
 
@@ -319,14 +382,24 @@ const mangaReadingScript = () => {
     let margin = '5px auto 0';
     if (globals.titleList.includes(globals.currentTitle)) {
       margin = '0 auto';
-      setStyle(document.querySelectorAll('.container-chapter-reader > div'), 'display', 'none');
+      setStyle(
+        document.querySelectorAll('.container-chapter-reader > div'),
+        'display',
+        'none'
+      );
     }
-    setStyle(document.querySelectorAll('.container-chapter-reader img'), 'margin', margin);
-  }
+    setStyle(
+      document.querySelectorAll('.container-chapter-reader img'),
+      'margin',
+      margin
+    );
+  };
 
   const findUrls = () => {
     debug('Finding URLs...');
-    const titleLink = document.querySelector<HTMLAnchorElement>(globals.currentSite.titleLinkSelector);
+    const titleLink = document.querySelector<HTMLAnchorElement>(
+      globals.currentSite.titleLinkSelector
+    );
 
     globals.currentTitle = titleLink?.innerText.trim().toLowerCase() ?? 'None';
     setSubTitle();
@@ -335,47 +408,61 @@ const mangaReadingScript = () => {
       return;
     }
 
-    const nextChapterLink = document.querySelector<HTMLAnchorElement>(globals.currentSite.nextChapterSelector);
+    const nextChapterLink = document.querySelector<HTMLAnchorElement>(
+      globals.currentSite.nextChapterSelector
+    );
     if (nextChapterLink) globals.nextUrl = nextChapterLink.href;
     else globals.nextUrl = titleLink.href;
 
-    const prevChapterLink = document.querySelector<HTMLAnchorElement>(globals.currentSite.prevChapterSelector);
+    const prevChapterLink = document.querySelector<HTMLAnchorElement>(
+      globals.currentSite.prevChapterSelector
+    );
     if (prevChapterLink) globals.prevUrl = prevChapterLink.href;
     else globals.prevUrl = titleLink.href;
     debug('Found URLs.');
-  }
+  };
 
   const loadTitleList = () => {
     debug(`Loading title list...`);
-    globals.titleList = JSON.parse(GM_getValue(key.titleList, JSON.stringify(defaults.titleList)));
+    globals.titleList = JSON.parse(
+      GM_getValue(key.titleList, JSON.stringify(defaults.titleList))
+    );
     debug(`Loaded title list.`);
-  }
+  };
 
   const manganatoSiteOverrides = () => {
     if (!globals.sites.manganato.active) return;
 
-    document.querySelector('.body-site > .container .panel-fb-comment')?.remove();
+    document
+      .querySelector('.body-site > .container .panel-fb-comment')
+      ?.remove();
     document.querySelector('body > #fb-root')?.remove();
     document.querySelector('.body-site > .container-footer')?.remove();
 
     if (atChapter()) {
-      const chapterContainer = document.querySelector('.container-chapter-reader');
+      const chapterContainer = document.querySelector(
+        '.container-chapter-reader'
+      );
       chapterContainer?.nextSibling?.remove();
       chapterContainer?.nextSibling?.remove();
 
-      const firstContainer = document.querySelector('.body-site > .container:first-of-type');
+      const firstContainer = document.querySelector(
+        '.body-site > .container:first-of-type'
+      );
       firstContainer?.classList.add('overrides-header-container');
-      const lastContainer = document.querySelector('.body-site > .container:last-of-type');
+      const lastContainer = document.querySelector(
+        '.body-site > .container:last-of-type'
+      );
       lastContainer?.classList.add('overrides-footer-container');
     }
-    if (!(atChapterOrManga())) genreAllSetFirstActive();
-  }
+    if (!atChapterOrManga()) genreAllSetFirstActive();
+  };
 
   const siteOverrides = () => {
     debug(`Applying site overrides...`);
     manganatoSiteOverrides();
     debug(`Applied site overrides.`);
-  }
+  };
 
   const setActiveSite = () => {
     debug(`Setting active site...`);
@@ -402,20 +489,27 @@ const mangaReadingScript = () => {
       break;
     }
     debug(`Set active site: ${globals.currentSite.name}`);
-  }
+  };
 
   let genreAllItems: HTMLDivElement[] = [];
   let genreAllItemsIndex = 0;
   const genreAllActiveItemClass = 'nws-genre-all-active-item';
 
   const genreAllGoToPage = (direction: string) => {
-    const pageSelected = document.querySelector<HTMLAnchorElement>('.panel-page-number > .group-page > a.page-select:not(.page-blue)');
+    const pageSelected = document.querySelector<HTMLAnchorElement>(
+      '.panel-page-number > .group-page > a.page-select:not(.page-blue)'
+    );
     if (!pageSelected) return;
-    const previous = pageSelected.previousElementSibling as HTMLAnchorElement | undefined;
-    const next = pageSelected.nextElementSibling as HTMLAnchorElement | undefined;
+    const previous = pageSelected.previousElementSibling as
+      | HTMLAnchorElement
+      | undefined;
+    const next = pageSelected.nextElementSibling as
+      | HTMLAnchorElement
+      | undefined;
     switch (direction) {
       case 'ArrowLeft':
-        if (previous === undefined || previous.classList.contains('page-blue')) return;
+        if (previous === undefined || previous.classList.contains('page-blue'))
+          return;
         setLocation(previous.href);
         break;
       case 'ArrowRight':
@@ -423,18 +517,25 @@ const mangaReadingScript = () => {
         setLocation(next.href);
         break;
     }
-  }
+  };
 
   const genreAllSetFirstActive = () => {
-    genreAllItems = [...document.querySelectorAll<HTMLDivElement>("div.panel-content-genres > div.content-genres-item")];
+    genreAllItems = [
+      ...document.querySelectorAll<HTMLDivElement>(
+        'div.panel-content-genres > div.content-genres-item'
+      )
+    ];
     if (genreAllItems.length > 0) {
       genreAllItemsIndex = 0;
       genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
     }
-  }
+  };
 
   const genreAllOpenMangaInNewTab = () => {
-    const anchor = genreAllItems[genreAllItemsIndex].querySelector<HTMLAnchorElement>('.genres-item-img');
+    const anchor =
+      genreAllItems[genreAllItemsIndex].querySelector<HTMLAnchorElement>(
+        '.genres-item-img'
+      );
     if (anchor) {
       GM_openInTab(anchor.href, { active: false, insert: true });
     }
@@ -444,32 +545,51 @@ const mangaReadingScript = () => {
     switch (direction) {
       case 'ArrowUp':
         if (genreAllItemsIndex < 2) return;
-        genreAllItems[genreAllItemsIndex].classList.remove(genreAllActiveItemClass);
+        genreAllItems[genreAllItemsIndex].classList.remove(
+          genreAllActiveItemClass
+        );
         genreAllItemsIndex = genreAllItemsIndex - 2;
-        genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
+        genreAllItems[genreAllItemsIndex].classList.add(
+          genreAllActiveItemClass
+        );
         break;
       case 'ArrowDown':
-        if (genreAllItemsIndex + 2 > genreAllItems.length - 1) return
-        genreAllItems[genreAllItemsIndex].classList.remove(genreAllActiveItemClass);
+        if (genreAllItemsIndex + 2 > genreAllItems.length - 1) return;
+        genreAllItems[genreAllItemsIndex].classList.remove(
+          genreAllActiveItemClass
+        );
         genreAllItemsIndex = genreAllItemsIndex + 2;
-        genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
+        genreAllItems[genreAllItemsIndex].classList.add(
+          genreAllActiveItemClass
+        );
         break;
       case 'ArrowLeft':
         if (genreAllItemsIndex === 0) return;
-        genreAllItems[genreAllItemsIndex].classList.remove(genreAllActiveItemClass);
+        genreAllItems[genreAllItemsIndex].classList.remove(
+          genreAllActiveItemClass
+        );
         genreAllItemsIndex = genreAllItemsIndex - 1;
-        genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
+        genreAllItems[genreAllItemsIndex].classList.add(
+          genreAllActiveItemClass
+        );
         break;
       case 'ArrowRight':
         if (genreAllItemsIndex == genreAllItems.length - 1) return;
-        genreAllItems[genreAllItemsIndex].classList.remove(genreAllActiveItemClass);
+        genreAllItems[genreAllItemsIndex].classList.remove(
+          genreAllActiveItemClass
+        );
         genreAllItemsIndex = genreAllItemsIndex + 1;
-        genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
+        genreAllItems[genreAllItemsIndex].classList.add(
+          genreAllActiveItemClass
+        );
         break;
     }
-    genreAllItems[genreAllItemsIndex].scrollIntoView({ behavior: "smooth", block: "center" });
+    genreAllItems[genreAllItemsIndex].scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
     window.getSelection()?.removeAllRanges();
-  }
+  };
 
   const shortcutHelpers = nws.shortcut.helpers;
 
@@ -485,7 +605,10 @@ const mangaReadingScript = () => {
       case e.code === 'ArrowLeft' && shortcutHelpers.noModifier(e) && manga:
         goToLatestChapter();
         return true;
-      case e.code === 'ArrowLeft' && shortcutHelpers.noModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
+      case e.code === 'ArrowLeft' &&
+        shortcutHelpers.noModifier(e) &&
+        !chapterOrManga &&
+        window.location.href.includes('manganato.com/genre-all'):
         genreAllGoToPage(e.code);
         return true;
       case e.code === 'ArrowRight' && shortcutHelpers.noModifier(e) && chapter:
@@ -494,50 +617,75 @@ const mangaReadingScript = () => {
       case e.code === 'ArrowRight' && shortcutHelpers.noModifier(e) && manga:
         goToFirstChapter();
         return true;
-      case e.code === 'ArrowRight' && shortcutHelpers.noModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
+      case e.code === 'ArrowRight' &&
+        shortcutHelpers.noModifier(e) &&
+        !chapterOrManga &&
+        window.location.href.includes('manganato.com/genre-all'):
         genreAllGoToPage(e.code);
         return true;
-      case e.code === 'ArrowUp' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
+      case e.code === 'ArrowUp' &&
+        shortcutHelpers.shiftModifier(e) &&
+        !chapterOrManga &&
+        window.location.href.includes('manganato.com/genre-all'):
         genreAllBrowse(e.code);
         return true;
-      case e.code === 'ArrowDown' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
+      case e.code === 'ArrowDown' &&
+        shortcutHelpers.shiftModifier(e) &&
+        !chapterOrManga &&
+        window.location.href.includes('manganato.com/genre-all'):
         genreAllBrowse(e.code);
         return true;
-      case e.code === 'ArrowLeft' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
+      case e.code === 'ArrowLeft' &&
+        shortcutHelpers.shiftModifier(e) &&
+        !chapterOrManga &&
+        window.location.href.includes('manganato.com/genre-all'):
         genreAllBrowse(e.code);
         return true;
-      case e.code === 'ArrowRight' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
+      case e.code === 'ArrowRight' &&
+        shortcutHelpers.shiftModifier(e) &&
+        !chapterOrManga &&
+        window.location.href.includes('manganato.com/genre-all'):
         genreAllBrowse(e.code);
         return true;
-      case e.code === 'Enter' && shortcutHelpers.shiftModifier(e) && !chapterOrManga && window.location.href.includes('manganato.com/genre-all'):
+      case e.code === 'Enter' &&
+        shortcutHelpers.shiftModifier(e) &&
+        !chapterOrManga &&
+        window.location.href.includes('manganato.com/genre-all'):
         genreAllOpenMangaInNewTab();
         return true;
       case e.code === 'Quote' && shortcutHelpers.shiftModifier(e) && chapter:
         resize();
         return true;
-      case e.code === 'BracketLeft' && shortcutHelpers.shiftModifier(e) && chapterOrManga:
+      case e.code === 'BracketLeft' &&
+        shortcutHelpers.shiftModifier(e) &&
+        chapterOrManga:
         setTitleList();
         removeTitle();
         saveTitles();
         return true;
-      case e.code === 'BracketRight' && shortcutHelpers.shiftModifier(e) && chapterOrManga:
+      case e.code === 'BracketRight' &&
+        shortcutHelpers.shiftModifier(e) &&
+        chapterOrManga:
         setTitleList();
         addTitle();
         saveTitles();
         return true;
     }
     return false;
-  }
+  };
 
   const registerResources = async () => {
     nws.resources.register('stylesheets', ...styleResources);
     nws.resources.register('json', ...jsonResources);
     nws.resources.register('scripts', ...scriptResources);
-  }
+  };
 
   const registerKeyUps = () => {
     const namePrefix = GM_info.script.name;
-    nws.shortcut.keyUp.register('ConfigClosed', { name: `${namePrefix} - config closed`, callback: configClosedShortcuts });
+    nws.shortcut.keyUp.register('ConfigClosed', {
+      name: `${namePrefix} - config closed`,
+      callback: configClosedShortcuts
+    });
   };
 
   const checkFirstRun = () => {
@@ -548,10 +696,13 @@ const mangaReadingScript = () => {
       debug('First run detected.');
       GM_setValue(key.firstRun, false);
 
-      GM_notification('First run setup complete', `NWS - ${GM_info.script.name}`);
+      GM_notification(
+        'First run setup complete',
+        `NWS - ${GM_info.script.name}`
+      );
     }
     debug('First run checked.');
-  }
+  };
 
   const onInit = async () => {
     console.log(`NWS - ${GM_info.script.name} - Loading...`);
@@ -563,7 +714,7 @@ const mangaReadingScript = () => {
     if (atChapter()) removeMargins();
     siteOverrides();
     console.log(`NWS - ${GM_info.script.name} - Loaded.`);
-  }
+  };
 
   registerConfig();
   registerResources();
