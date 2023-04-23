@@ -1,0 +1,40 @@
+body {
+  background-color: rgb(17, 17, 17) !important;
+}
+
+table.table-bordered.table-hover.table-striped.torrent-list {
+  background-color: rgba(17, 17, 17, 1) !important;
+  color: rgba(240, 240, 240, 1) !important;
+}
+
+table.table-bordered.table-hover.table-striped.torrent-list > thead > tr,
+table.table-bordered.table-hover.table-striped.torrent-list > thead > tr > th,
+table.table-bordered.table-hover.table-striped.torrent-list > tbody > tr,
+table.table-bordered.table-hover.table-striped.torrent-list > tbody > tr > td {
+  background-color: rgba(17, 17, 17, 1) !important;
+  color: rgba(240, 240, 240, 1) !important;
+  border: solid 1px rgba(17, 17, 17, 0) !important;
+  border-left-color: rgba(17, 17, 17, 0) !important;
+  border-right-color: rgba(17, 17, 17, 0) !important;
+}
+
+table.table-bordered.table-hover.table-striped.torrent-list > tbody > tr,
+table.table-bordered.table-hover.table-striped.torrent-list > tbody > tr > td {
+  border-bottom-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+table.table-bordered.table-hover.table-striped.torrent-list > thead > tr {
+  position: sticky;
+  top: 0;
+}
+
+tr.nws-selected-row {
+  outline: 2px solid rgba(154, 136, 255, 0.8);
+  outline-offset: -2px;
+}
+
+div.table-responsive {
+  overflow: unset !important;
+  max-height: calc(100vh - 190px) !important;
+  overflow-y: scroll !important;
+}

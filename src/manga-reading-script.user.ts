@@ -63,13 +63,18 @@ const mangaReadingScript = () => {
     sites: {
       manganato: {
         name: 'manganato',
-        urls: ['https://readmanganato.com', 'https://manganato.com'],
+        urls: [
+          'https://readmanganato.com',
+          'https://manganato.com',
+          'https://chapmanganato.com'
+        ],
         active: false,
         at: 'neither',
-        activeRegex: /https:\/\/(?:read)?manganato\.com\S*/,
+        activeRegex: /https:\/\/(?:read|chap)?manganato\.com\S*/,
         atChapterRegex:
-          /https:\/\/(?:read)?manganato.com\/manga-[\w.\-~%]+\/chapter-[\d.-]+/,
-        atMangaRegex: /https:\/\/(?:read)?manganato.com\/manga-[\w.\-~%]+$/,
+          /https:\/\/(?:read|chap)?manganato.com\/manga-[\w.\-~%]+\/chapter-[\d.-]+/,
+        atMangaRegex:
+          /https:\/\/(?:read|chap)?manganato.com\/manga-[\w.\-~%]+$/,
         titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
         nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
         prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h'
@@ -125,7 +130,11 @@ const mangaReadingScript = () => {
     {
       name: 'manganatoOverrides',
       data: '',
-      urls: ['https://readmanganato.com', 'https://manganato.com'],
+      urls: [
+        'https://readmanganato.com',
+        'https://manganato.com',
+        'https://chapmanganato.com'
+      ],
       at: 'site',
       site: 'global',
       shouldLoad: shouldLoad
@@ -133,7 +142,11 @@ const mangaReadingScript = () => {
     {
       name: 'manganatoOverridesNeither',
       data: '',
-      urls: ['https://readmanganato.com', 'https://manganato.com'],
+      urls: [
+        'https://readmanganato.com',
+        'https://manganato.com',
+        'https://chapmanganato.com'
+      ],
       at: 'site',
       site: 'neither',
       shouldLoad: shouldLoad
@@ -141,7 +154,11 @@ const mangaReadingScript = () => {
     {
       name: 'manganatoOverridesChapter',
       data: '',
-      urls: ['https://readmanganato.com', 'https://manganato.com'],
+      urls: [
+        'https://readmanganato.com',
+        'https://manganato.com',
+        'https://chapmanganato.com'
+      ],
       at: 'site',
       site: 'chapter',
       shouldLoad: shouldLoad
@@ -149,7 +166,11 @@ const mangaReadingScript = () => {
     {
       name: 'manganatoOverridesManga',
       data: '',
-      urls: ['https://readmanganato.com', 'https://manganato.com'],
+      urls: [
+        'https://readmanganato.com',
+        'https://manganato.com',
+        'https://chapmanganato.com'
+      ],
       at: 'site',
       site: 'manga',
       shouldLoad: shouldLoad
@@ -157,7 +178,11 @@ const mangaReadingScript = () => {
     {
       name: 'manganatoOverridesChapterOrManga',
       data: '',
-      urls: ['https://readmanganato.com', 'https://manganato.com'],
+      urls: [
+        'https://readmanganato.com',
+        'https://manganato.com',
+        'https://chapmanganato.com'
+      ],
       at: 'site',
       site: 'chapterOrManga',
       shouldLoad: shouldLoad
@@ -230,7 +255,7 @@ const mangaReadingScript = () => {
       for (const image of images) {
         image.style.width = (pageWidth / image.width) * 100 + '%';
         image.style.width =
-          (window.visualViewport.height / image.height) * 100 + '%';
+          (window?.visualViewport?.height ?? 1 / image.height) * 100 + '%';
       }
     } else {
       images.forEach((image) => (image.style.width = input + '%'));
@@ -484,7 +509,6 @@ const mangaReadingScript = () => {
           site.at = 'neither';
           break;
       }
-
       globals.currentSite = site;
       break;
     }
