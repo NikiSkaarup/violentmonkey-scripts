@@ -11,6 +11,7 @@
 // @downloadURL http://localhost:8432/twitch-script.user.js
 // ==/UserScript==
 
+// biome-ignore lint/suspicious/noRedundantUseStrict: ... I want to use strict mode
 'use strict';
 
 const twitchFix = () => {

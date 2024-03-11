@@ -48,19 +48,9 @@ const initScript = () => {
     dataAttr: 'data-nws-nyaa-si-script'
   };
 
-  const setLocation = (url: string) =>
+  const setLocation = (url: string) => {
     (window.location = url as unknown as Location);
-
-  const setStyle = (
-    array: NodeListOf<HTMLElement>,
-    style: string,
-    value: string
-  ) => {
-    const arr = [...array];
-    for (const item of arr) {
-      (item.style as unknown as stringKeyedObject)[style] = value;
-    }
-  };
+  }
 
   const registerConfig = () => {
     const subContainer = nws.createHTMLElement(
@@ -80,10 +70,10 @@ const initScript = () => {
   };
 
   const siteOverrides = () => {
-    debug(`Applying site overrides...`);
+    debug("Applying site overrides...");
     // site overrides
     document.body.classList.add('dark');
-    debug(`Applied site overrides.`);
+    debug("Applied site overrides.");
   };
 
   const shortcutHelpers = nws.shortcut.helpers;

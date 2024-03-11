@@ -198,7 +198,7 @@ export default (() => {
 
   const disableScrolling = () => {
     document.documentElement.style.top =
-      -document.documentElement.scrollTop + 'px';
+      `${-document.documentElement.scrollTop}px`;
     document.documentElement.style.position = 'fixed';
     document.documentElement.style.overflowY = 'scroll';
     document.body.style.overflowY = 'scroll';
@@ -207,7 +207,7 @@ export default (() => {
 
   const enableScrolling = () => {
     const scrollTop = Math.abs(
-      parseInt(document.documentElement.style.top, 10)
+      Number.parseInt(document.documentElement.style.top, 10)
     );
     document.documentElement.removeAttribute('style');
     document.body.removeAttribute('style');
@@ -262,7 +262,7 @@ export default (() => {
   };
 
   const attachFocusEvent = () => {
-    debug(`Attaching focus event...`);
+    debug("Attaching focus event...");
     ui.configurationWindowContainer.addEventListener(
       'keydown',
       (event: KeyboardEvent) => {
@@ -276,7 +276,7 @@ export default (() => {
         }
       }
     );
-    debug(`Attached focus events.`);
+    debug("Attached focus events.");
   };
 
   const shouldLoad = (resource: resource): boolean =>
@@ -346,10 +346,11 @@ export default (() => {
   const registerResource = (
     resourceType: resourceType,
     ...resources: resource[]
-  ) =>
-    resources.forEach((resource) =>
+  ) => {
+    for (const resource of resources) {
       registeredResources.push({ resource, resourceType })
-    );
+    }
+  }
 
   const unregisterResource = (name: string) => {
     const index = registeredResources.findIndex(
@@ -365,24 +366,25 @@ export default (() => {
   };
 
   const loadResources = async () => {
-    debug(`Loading resources...`);
-    registeredResources.forEach(
-      async ({ resource, resourceType }) =>
-        await loadResource(resource, resourceType)
-    );
-    debug(`Loaded resources.`);
+    debug("Loading resources...");
+    for (const { resource, resourceType } of registeredResources) {
+      await loadResource(resource, resourceType)
+    }
+    debug("Loaded resources.");
   };
 
   const reloadResources = async () => {
     debug('Reloading resources...');
 
     debug('Removing old resources...');
-    document.body
-      .querySelectorAll(`style[${key.dataAttr}]`)
-      .forEach((el) => el.remove());
-    document.body
-      .querySelectorAll(`script[${key.dataAttr}]`)
-      .forEach((el) => el.remove());
+
+    for (const el of document.body.querySelectorAll(`style[${key.dataAttr}]`)) {
+      el.remove()
+    }
+
+    for (const el of document.body.querySelectorAll(`script[${key.dataAttr}]`)) {
+      el.remove()
+    }
     debug('Removed old resources.');
 
     await loadResources();
@@ -444,7 +446,7 @@ export default (() => {
     );
 
   const attachShortcutEvents = () => {
-    debug(`Attaching shortcut events...`);
+    debug("Attaching shortcut events...");
     document.addEventListener('keyup', (event: KeyboardEvent) => {
       const shortcuts = [
         ...filterRegisteredShortcut('Global'),
@@ -457,16 +459,17 @@ export default (() => {
         if (registered.shortcut.callback(event)) return;
       }
     });
-    debug(`Attached shortcut events.`);
+    debug("Attached shortcut events.");
   };
 
   const registerKeyUp = (
     shortcutType: shortcutType,
     ...shortcuts: shortcut[]
-  ) =>
-    shortcuts.forEach((shortcut) =>
-      registeredKeyUpShortCuts.unshift({ shortcutType, shortcut })
-    );
+  ) => {
+    for (const shortcut of shortcuts) {
+      registeredKeyUpShortCuts.unshift({ shortcutType, shortcut });
+    }
+  }
 
   const unregisterKeyUp = (name: string) => {
     const index = registeredKeyUpShortCuts.findIndex(

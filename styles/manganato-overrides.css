@@ -1,7 +1,7 @@
 body {
   background-color: rgba(0, 0, 0, 0) !important;
   border-color: currentcolor;
-  background-image: url("https://readmanganato.com/themes/hm/images/background-black.png") !important;
+  background-image: url("/themes/hm/images/background-black.png") !important;
   border-top: 0px !important;
 }
 

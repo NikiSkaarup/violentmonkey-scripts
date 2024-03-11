@@ -11,10 +11,12 @@
 // @homepageURL https://skaarup.dev/userscripts
 // @updateURL   http://localhost:8432/manga-reading-script.user.js
 // @downloadURL http://localhost:8432/manga-reading-script.user.js
+// @match       https://(readmanganato|manganato|chapmanganato).com/*
 // @match       https://manganelo.com/*
 // @match       https://readmanganato.com/*
 // @match       https://chapmanganato.com/*
 // @match       https://manganato.com/*
+// @match       https://chapmanganato.to/*
 // @grant       none
 // @version     1.0
 // @author      nws
@@ -33,8 +35,9 @@
 // ==/UserScript==
 
 /*
-  TODO: store data in json, for more customization per manga.
-  TODO: add a togglable reading mode that lets you press once to scroll each image which will at most 100vh tall
+ * TODO: Rewrite in jsdoc and get rid of the compile step
+ * TODO: store data in json, for more customization per manga.
+ * TODO: add a togglable reading mode that lets you press once to scroll each image which will at most 100vh tall
 */
 
 import nws from './nws.lib';
@@ -52,9 +55,9 @@ const mangaReadingScript = () => {
       urls: ['https://example.com'],
       at: 'neither',
       active: false,
-      activeRegex: RegExp(''),
-      atChapterRegex: RegExp(''),
-      atMangaRegex: RegExp(''),
+      activeRegex: /(?:)/,
+      atChapterRegex: /(?:)/,
+      atMangaRegex: /(?:)/,
       titleLinkSelector: '',
       nextChapterSelector: '',
       prevChapterSelector: ''
@@ -66,15 +69,16 @@ const mangaReadingScript = () => {
         urls: [
           'https://readmanganato.com',
           'https://manganato.com',
-          'https://chapmanganato.com'
+          'https://chapmanganato.com',
+          'https://chapmanganato.to'
         ],
         active: false,
         at: 'neither',
-        activeRegex: /https:\/\/(?:read|chap)?manganato\.com\S*/,
+        activeRegex: /https:\/\/(?:read|chap)?manganato\.(?:com|to)\S*/,
         atChapterRegex:
-          /https:\/\/(?:read|chap)?manganato.com\/manga-[\w.\-~%]+\/chapter-[\d.-]+/,
+          /https:\/\/(?:read|chap)?manganato.(?:com|to)\/manga-[\w.\-~%]+\/chapter-[\d.-]+/,
         atMangaRegex:
-          /https:\/\/(?:read|chap)?manganato.com\/manga-[\w.\-~%]+$/,
+          /https:\/\/(?:read|chap)?manganato.(?:com|to)\/manga-[\w.\-~%]+$/,
         titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
         nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
         prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h'
@@ -133,7 +137,8 @@ const mangaReadingScript = () => {
       urls: [
         'https://readmanganato.com',
         'https://manganato.com',
-        'https://chapmanganato.com'
+        'https://chapmanganato.com',
+        'https://chapmanganato.to'
       ],
       at: 'site',
       site: 'global',
@@ -145,7 +150,8 @@ const mangaReadingScript = () => {
       urls: [
         'https://readmanganato.com',
         'https://manganato.com',
-        'https://chapmanganato.com'
+        'https://chapmanganato.com',
+        'https://chapmanganato.to'
       ],
       at: 'site',
       site: 'neither',
@@ -157,7 +163,8 @@ const mangaReadingScript = () => {
       urls: [
         'https://readmanganato.com',
         'https://manganato.com',
-        'https://chapmanganato.com'
+        'https://chapmanganato.com',
+        'https://chapmanganato.to'
       ],
       at: 'site',
       site: 'chapter',
@@ -169,7 +176,8 @@ const mangaReadingScript = () => {
       urls: [
         'https://readmanganato.com',
         'https://manganato.com',
-        'https://chapmanganato.com'
+        'https://chapmanganato.com',
+        'https://chapmanganato.to'
       ],
       at: 'site',
       site: 'manga',
@@ -181,7 +189,8 @@ const mangaReadingScript = () => {
       urls: [
         'https://readmanganato.com',
         'https://manganato.com',
-        'https://chapmanganato.com'
+        'https://chapmanganato.com',
+        'https://chapmanganato.to'
       ],
       at: 'site',
       site: 'chapterOrManga',
@@ -208,10 +217,12 @@ const mangaReadingScript = () => {
 
   const escapeRegExp = (input: string) =>
     input.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
-  const setLocation = (url: string) =>
+  const setLocation = (url: string) =>{
     (window.location = url as unknown as Location);
-  const setTitleList = () =>
+  }
+  const setTitleList = () => {
     (ui.titleList.value = globals.titleList.join('\r\n'));
+  }
   const atNeither = () => globals.currentSite.at === 'neither';
   const atChapter = () => globals.currentSite.at === 'chapter';
   const atManga = () => globals.currentSite.at === 'manga';
@@ -248,17 +259,19 @@ const mangaReadingScript = () => {
     ) as NodeListOf<HTMLImageElement>;
 
     if (input === 'auto w' || input === 'w') {
-      images.forEach(
-        (image) => (image.style.width = (pageWidth / image.width) * 100 + '%')
-      );
+      for (const image of images) {
+        image.style.width = `${(pageWidth / image.width) * 100}%`;
+      }
     } else if (input === 'auto h' || input === 'h') {
       for (const image of images) {
-        image.style.width = (pageWidth / image.width) * 100 + '%';
+        image.style.width = `${(pageWidth / image.width) * 100}%`;
         image.style.width =
-          (window?.visualViewport?.height ?? 1 / image.height) * 100 + '%';
+          `${(window?.visualViewport?.height ?? 1 / image.height) * 100}%`;
       }
     } else {
-      images.forEach((image) => (image.style.width = input + '%'));
+      for (const image of images) {
+        image.style.width = image.style.width = `${input}%`;
+      }
     }
   };
 
@@ -338,8 +351,9 @@ const mangaReadingScript = () => {
       'nws-button nws-cancel'
     );
     btnReset.innerText = 'Reset';
-    btnReset.onclick = () =>
-      (ui.titleList.value = globals.titleList.join('\r\n'));
+    btnReset.onclick = () => {
+      ui.titleList.value = globals.titleList.join('\r\n');
+    };
     divSubButtons.appendChild(btnReset);
 
     const btnSave = nws.createElement<HTMLButtonElement>(
@@ -363,7 +377,7 @@ const mangaReadingScript = () => {
     const includes = taTitleListValue.includes(globals.currentTitle);
     if (includes) return;
 
-    const curTAVal = trimmedValue.length > 0 ? trimmedValue + '\r\n' : '';
+    const curTAVal = trimmedValue.length > 0 ? `${trimmedValue}\r\n` : '';
     ui.titleList.value = curTAVal + globals.currentTitle;
   };
 
@@ -378,7 +392,7 @@ const mangaReadingScript = () => {
   const removeTitle = () => {
     const curTAVal = ui.titleList.value.trim();
     const regex = new RegExp(
-      escapeRegExp(globals.currentTitle) + '\\r?\\n?',
+      `${escapeRegExp(globals.currentTitle)}\\r?\\n?`,
       'gi'
     );
     ui.titleList.value = curTAVal.replace(regex, '');
@@ -448,11 +462,11 @@ const mangaReadingScript = () => {
   };
 
   const loadTitleList = () => {
-    debug(`Loading title list...`);
+    debug("Loading title list...");
     globals.titleList = JSON.parse(
       GM_getValue(key.titleList, JSON.stringify(defaults.titleList))
     );
-    debug(`Loaded title list.`);
+    debug("Loaded title list.");
   };
 
   const manganatoSiteOverrides = () => {
@@ -484,16 +498,18 @@ const mangaReadingScript = () => {
   };
 
   const siteOverrides = () => {
-    debug(`Applying site overrides...`);
+    debug("Applying site overrides...");
     manganatoSiteOverrides();
-    debug(`Applied site overrides.`);
+    debug("Applied site overrides.");
   };
 
   const setActiveSite = () => {
-    debug(`Setting active site...`);
+    debug("Setting active site...");
     const href = window.location.href;
+    console.log({href});
     for (const site of Object.values<manga_reading.siteType>(globals.sites)) {
       site.active = site.activeRegex.test(href);
+      console.log({site});
       if (!site.active) continue;
       const atChapter = site.atChapterRegex.test(href);
       const atManga = site.atMangaRegex.test(href);
@@ -598,7 +614,7 @@ const mangaReadingScript = () => {
         );
         break;
       case 'ArrowRight':
-        if (genreAllItemsIndex == genreAllItems.length - 1) return;
+        if (genreAllItemsIndex === genreAllItems.length - 1) return;
         genreAllItems[genreAllItemsIndex].classList.remove(
           genreAllActiveItemClass
         );
@@ -632,7 +648,7 @@ const mangaReadingScript = () => {
       case e.code === 'ArrowLeft' &&
         shortcutHelpers.noModifier(e) &&
         !chapterOrManga &&
-        window.location.href.includes('manganato.com/genre-all'):
+        window.location.href.includes('/genre-all'):
         genreAllGoToPage(e.code);
         return true;
       case e.code === 'ArrowRight' && shortcutHelpers.noModifier(e) && chapter:
@@ -644,37 +660,37 @@ const mangaReadingScript = () => {
       case e.code === 'ArrowRight' &&
         shortcutHelpers.noModifier(e) &&
         !chapterOrManga &&
-        window.location.href.includes('manganato.com/genre-all'):
+        window.location.href.includes('/genre-all'):
         genreAllGoToPage(e.code);
         return true;
       case e.code === 'ArrowUp' &&
         shortcutHelpers.shiftModifier(e) &&
         !chapterOrManga &&
-        window.location.href.includes('manganato.com/genre-all'):
+        window.location.href.includes('/genre-all'):
         genreAllBrowse(e.code);
         return true;
       case e.code === 'ArrowDown' &&
         shortcutHelpers.shiftModifier(e) &&
         !chapterOrManga &&
-        window.location.href.includes('manganato.com/genre-all'):
+        window.location.href.includes('/genre-all'):
         genreAllBrowse(e.code);
         return true;
       case e.code === 'ArrowLeft' &&
         shortcutHelpers.shiftModifier(e) &&
         !chapterOrManga &&
-        window.location.href.includes('manganato.com/genre-all'):
+        window.location.href.includes('/genre-all'):
         genreAllBrowse(e.code);
         return true;
       case e.code === 'ArrowRight' &&
         shortcutHelpers.shiftModifier(e) &&
         !chapterOrManga &&
-        window.location.href.includes('manganato.com/genre-all'):
+        window.location.href.includes('/genre-all'):
         genreAllBrowse(e.code);
         return true;
       case e.code === 'Enter' &&
         shortcutHelpers.shiftModifier(e) &&
         !chapterOrManga &&
-        window.location.href.includes('manganato.com/genre-all'):
+        window.location.href.includes('/genre-all'):
         genreAllOpenMangaInNewTab();
         return true;
       case e.code === 'Quote' && shortcutHelpers.shiftModifier(e) && chapter:
