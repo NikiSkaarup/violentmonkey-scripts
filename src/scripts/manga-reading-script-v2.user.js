@@ -43,9 +43,9 @@
  * TODO: add a togglable reading mode that lets you press once to scroll each image which will at most 100vh tall
  */
 
-import nws from './nws.lib.js';
 // @ts-ignore
-import mangaReadingConfig from './templates/manga-reading-config.html';
+import mangaReadingConfig from '../templates/manga-reading-config.html';
+import nws from './nws.lib.js';
 
 function mangaReadingScript() {
 	/**
@@ -155,7 +155,8 @@ function mangaReadingScript() {
 			],
 			at: 'site',
 			site: 'global',
-			shouldLoad: shouldLoad
+			shouldLoad: shouldLoad,
+			inline: true
 		},
 		{
 			name: 'manganatoOverridesNeither',
@@ -168,7 +169,8 @@ function mangaReadingScript() {
 			],
 			at: 'site',
 			site: 'neither',
-			shouldLoad: shouldLoad
+			shouldLoad: shouldLoad,
+			inline: true
 		},
 		{
 			name: 'manganatoOverridesChapter',
@@ -181,7 +183,8 @@ function mangaReadingScript() {
 			],
 			at: 'site',
 			site: 'chapter',
-			shouldLoad: shouldLoad
+			shouldLoad: shouldLoad,
+			inline: true
 		},
 		{
 			name: 'manganatoOverridesManga',
@@ -194,7 +197,8 @@ function mangaReadingScript() {
 			],
 			at: 'site',
 			site: 'manga',
-			shouldLoad: shouldLoad
+			shouldLoad: shouldLoad,
+			inline: true
 		},
 		{
 			name: 'manganatoOverridesChapterOrManga',
@@ -207,7 +211,8 @@ function mangaReadingScript() {
 			],
 			at: 'site',
 			site: 'chapterOrManga',
-			shouldLoad: shouldLoad
+			shouldLoad: shouldLoad,
+			inline: true
 		}
 	];
 	/** @type {Array<manga_reading.resourceType>} */
@@ -226,9 +231,29 @@ function mangaReadingScript() {
 		dataAttr: 'data-nws-manga-reading-script'
 	};
 
+	const temp = document.createElement('div');
+	temp.innerHTML = mangaReadingConfig;
+	const configElement = /** @type {HTMLDivElement} */ (temp.children[0]);
+
 	const ui = {
-		titleList: document.createElement('textarea'),
-		subTitle: document.createElement('p')
+		titleList: /** @type {HTMLTextAreaElement} */ (
+			configElement.querySelector('[data-mrs-title-list]')
+		),
+		subTitle: /** @type {HTMLSpanElement} */ (
+			configElement.querySelector('[data-mrs-title-current]')
+		),
+		btnAdd: /** @type {HTMLButtonElement} */ (
+			configElement.querySelector('[data-mrs-title-current-add]')
+		),
+		btnRemove: /** @type {HTMLButtonElement} */ (
+			configElement.querySelector('[data-mrs-title-current-remove]')
+		),
+		btnSave: /** @type {HTMLButtonElement} */ (
+			configElement.querySelector('[data-mrs-title-list-save]')
+		),
+		btnReset: /** @type {HTMLButtonElement} */ (
+			configElement.querySelector('[data-mrs-title-list-reset]')
+		)
 	};
 
 	/**
@@ -267,7 +292,6 @@ function mangaReadingScript() {
 	}
 
 	/**
-	 *
 	 * @param {NodeListOf<HTMLElement>} array
 	 * @param {string} style
 	 * @param {string} value
@@ -314,59 +338,34 @@ function mangaReadingScript() {
 	}
 
 	function setSubTitle() {
-		const titleText = atChapterOrManga() ? globals.currentTitle : 'No title';
-		ui.subTitle.innerText = `Current Title(affected by buttons): ${titleText}`;
+		ui.subTitle.innerText = atChapterOrManga() ? globals.currentTitle : 'No title';
 	}
 
 	function registerConfig() {
-		const wrapper = document.createElement('div');
-		wrapper.innerHTML = mangaReadingConfig;
-
-		const configElement = /** @type {HTMLDivElement} */ (wrapper.children[0]);
-
-		ui.subTitle = /** @type {HTMLParagraphElement} */ (
-			configElement.querySelector('[data-mrs-title-current]')
-		);
 		setSubTitle();
 
-		ui.titleList = /** @type {HTMLTextAreaElement} */ (
-			configElement.querySelector('[data-mrs-title-list]')
-		);
+		console.log(ui);
 
-		const btnRemove = /** @type {HTMLButtonElement} */ (
-			configElement.querySelector('[data-mrs-title-list-save]')
-		);
-		btnRemove.onclick = removeTitle;
-		btnRemove.disabled = atNeither();
+		ui.btnRemove.onclick = removeTitle;
+		ui.btnRemove.disabled = atNeither();
 
-		const btnAdd = /** @type {HTMLButtonElement} */ (
-			configElement.querySelector('[data-mrs-title-list-save]')
-		);
+		ui.btnAdd.onclick = addTitle;
+		ui.btnAdd.disabled = atNeither();
 
-		btnAdd.onclick = addTitle;
-		btnAdd.disabled = atNeither();
-
-		const btnReset = /** @type {HTMLButtonElement} */ (
-			configElement.querySelector('[data-mrs-title-list-save]')
-		);
-		btnReset.onclick = () => {
+		ui.btnReset.onclick = () => {
 			ui.titleList.value = globals.titleList.join('\r\n');
 		};
 
-		const btnSave = /** @type {HTMLButtonElement} */ (
-			configElement.querySelector('[data-mrs-title-list-save]')
-		);
-
-		btnSave.onclick = saveTitles;
+		ui.btnSave.onclick = saveTitles;
 
 		nws.config.register(GM_info, configElement, () => {
 			setTitleList();
-			btnRemove.disabled = atNeither();
-			btnAdd.disabled = atNeither();
+			ui.btnRemove.disabled = atNeither();
+			ui.btnAdd.disabled = atNeither();
 		});
 	}
 
-	const addTitle = () => {
+	function addTitle() {
 		const trimmedValue = ui.titleList.value.trim();
 		const taTitleListValue = trimmedValue.split(/\r?\n/);
 		const includes = taTitleListValue.includes(globals.currentTitle);
@@ -374,39 +373,39 @@ function mangaReadingScript() {
 
 		const curTAVal = trimmedValue.length > 0 ? `${trimmedValue}\r\n` : '';
 		ui.titleList.value = curTAVal + globals.currentTitle;
-	};
+	}
 
-	const saveTitles = () => {
+	function saveTitles() {
 		globals.titleList = [...new Set(ui.titleList.value.trim().split(/\r?\n/).sort())];
 		GM_setValue(key.titleList, JSON.stringify(globals.titleList));
 		if (atChapter()) removeMargins();
-	};
+	}
 
-	const removeTitle = () => {
+	function removeTitle() {
 		const curTAVal = ui.titleList.value.trim();
 		const regex = new RegExp(`${escapeRegExp(globals.currentTitle)}\\r?\\n?`, 'gi');
 		ui.titleList.value = curTAVal.replace(regex, '');
-	};
+	}
 
-	const goToFirstChapter = () => {
+	function goToFirstChapter() {
 		if (!globals.sites.manganato.active) return;
 		const firstChapter = /** @type {HTMLElement} */ (getChapterList().lastElementChild);
 		const firstChapterLink = /** @type {HTMLAnchorElement | null} */ (
 			firstChapter.querySelector('a.chapter-name')
 		);
 		if (firstChapterLink !== null) setLocation(firstChapterLink.href);
-	};
+	}
 
-	const goToLatestChapter = () => {
+	function goToLatestChapter() {
 		if (!globals.sites.manganato.active) return;
 		const latestChapter = /** @type {HTMLElement} */ (getChapterList().firstElementChild);
 		const latestChapterLink = /** @type {HTMLAnchorElement | null} */ (
 			latestChapter.querySelector('.chapter-name')
 		);
 		if (latestChapterLink !== null) setLocation(latestChapterLink.href);
-	};
+	}
 
-	const removeMargins = () => {
+	function removeMargins() {
 		if (!atChapter()) return;
 		let margin = '5px auto 0';
 		if (globals.titleList.includes(globals.currentTitle)) {
@@ -418,16 +417,19 @@ function mangaReadingScript() {
 			);
 		}
 		setStyle(document.querySelectorAll('.container-chapter-reader img'), 'margin', margin);
-	};
+	}
 
-	const findUrls = () => {
+	function findUrls() {
 		debug('Finding URLs...');
+
 		const titleLink = /** @type {HTMLAnchorElement | null}*/ (
 			document.querySelector(globals.currentSite.titleLinkSelector)
 		);
 
 		globals.currentTitle = titleLink?.innerText.trim().toLowerCase() ?? 'None';
+
 		setSubTitle();
+
 		if (!atChapter() || titleLink === null) {
 			debug('Found URLs.');
 			return;
@@ -436,26 +438,31 @@ function mangaReadingScript() {
 		const nextChapterLink = /** @type {HTMLAnchorElement | null}*/ (
 			document.querySelector(globals.currentSite.nextChapterSelector)
 		);
+
 		if (nextChapterLink) globals.nextUrl = nextChapterLink.href;
 		else globals.nextUrl = titleLink.href;
 
 		const prevChapterLink = /** @type {HTMLAnchorElement | null}*/ (
 			document.querySelector(globals.currentSite.prevChapterSelector)
 		);
+
 		if (prevChapterLink) globals.prevUrl = prevChapterLink.href;
 		else globals.prevUrl = titleLink.href;
-		debug('Found URLs.');
-	};
 
-	const loadTitleList = () => {
+		debug('Found URLs.');
+	}
+
+	function loadTitleList() {
 		debug('Loading title list...');
+
 		globals.titleList = JSON.parse(
 			GM_getValue(key.titleList, JSON.stringify(defaults.titleList))
 		);
-		debug('Loaded title list.');
-	};
 
-	const manganatoSiteOverrides = () => {
+		debug('Loaded title list.');
+	}
+
+	function manganatoSiteOverrides() {
 		if (!globals.sites.manganato.active) return;
 
 		document.querySelector('.body-site > .container .panel-fb-comment')?.remove();
@@ -472,23 +479,28 @@ function mangaReadingScript() {
 			const lastContainer = document.querySelector('.body-site > .container:last-of-type');
 			lastContainer?.classList.add('overrides-footer-container');
 		}
-		if (!atChapterOrManga()) genreAllSetFirstActive();
-	};
 
-	const siteOverrides = () => {
+		if (!atChapterOrManga()) {
+			genreAllSetFirstActive();
+		}
+	}
+
+	function siteOverrides() {
 		debug('Applying site overrides...');
 		manganatoSiteOverrides();
 		debug('Applied site overrides.');
-	};
+	}
 
-	const setActiveSite = () => {
+	function setActiveSite() {
 		debug('Setting active site...');
 		const href = window.location.href;
 		/** @type {Array<manga_reading.siteType>} */
 		const sites = Object.values(globals.sites);
 		for (const site of sites) {
 			site.active = site.activeRegex.test(href);
-			if (!site.active) continue;
+			if (!site.active) {
+				continue;
+			}
 			const atChapter = site.atChapterRegex.test(href);
 			const atManga = site.atMangaRegex.test(href);
 
@@ -507,7 +519,7 @@ function mangaReadingScript() {
 			break;
 		}
 		debug(`Set active site: ${globals.currentSite.name}`);
-	};
+	}
 
 	/** @type {Array<HTMLDivElement>} */
 	let genreAllItems = [];
@@ -528,7 +540,9 @@ function mangaReadingScript() {
 		const previous = /** @type {HTMLAnchorElement | null} */ (
 			pageSelected.previousElementSibling
 		);
+
 		const next = /** @type {HTMLAnchorElement | null} */ (pageSelected.nextElementSibling);
+
 		switch (direction) {
 			case 'ArrowLeft':
 				if (previous === null || previous.classList.contains('page-blue')) return;
@@ -549,6 +563,7 @@ function mangaReadingScript() {
 				)
 			)
 		];
+
 		if (genreAllItems.length > 0) {
 			genreAllItemsIndex = 0;
 			genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
@@ -559,6 +574,7 @@ function mangaReadingScript() {
 		const anchor = /** @type {HTMLAnchorElement|null} */ (
 			genreAllItems[genreAllItemsIndex].querySelector('.genres-item-img')
 		);
+
 		if (anchor) {
 			GM_openInTab(anchor.href, { active: false, insert: true });
 		}
@@ -594,10 +610,12 @@ function mangaReadingScript() {
 				genreAllItems[genreAllItemsIndex].classList.add(genreAllActiveItemClass);
 				break;
 		}
+
 		genreAllItems[genreAllItemsIndex].scrollIntoView({
 			behavior: 'smooth',
 			block: 'center'
 		});
+
 		window.getSelection()?.removeAllRanges();
 	}
 
@@ -691,21 +709,17 @@ function mangaReadingScript() {
 	}
 
 	function registerKeyUps() {
-		const namePrefix = GM_info.script.name;
 		nws.shortcut.keyUp.register('ConfigClosed', {
-			name: `${namePrefix} - config closed`,
+			name: `${GM_info.script.name} - config closed`,
 			callback: configClosedShortcuts
 		});
 	}
 
 	function checkFirstRun() {
 		debug('First run check...');
-		const firstRun = GM_getValue(key.firstRun, true);
-
-		if (firstRun) {
+		if (GM_getValue(key.firstRun, true)) {
 			debug('First run detected.');
 			GM_setValue(key.firstRun, false);
-
 			GM_notification('First run setup complete', `NWS - ${GM_info.script.name}`);
 		}
 		debug('First run checked.');
@@ -718,7 +732,9 @@ function mangaReadingScript() {
 		setActiveSite();
 		loadTitleList();
 		findUrls();
-		if (atChapter()) removeMargins();
+		if (atChapter()) {
+			removeMargins();
+		}
 		siteOverrides();
 		console.log(`NWS - ${GM_info.script.name} - Loaded.`);
 	}

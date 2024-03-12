@@ -1,6 +1,5 @@
-
 type nwsWindow = {
-  nws?: nws;
+	nws?: nws;
 };
 
 type debugType = (message: unknown, name: string) => void;
@@ -16,13 +15,14 @@ type debugType = (message: unknown, name: string) => void;
 // }
 
 type resource = {
-  name: string;
-  data: string;
-  urls: string[];
-  universal?: boolean;
-  at: 'universal' | 'site';
-  site?: string;
-  shouldLoad?(resource: resource): boolean;
+	name: string;
+	data: string;
+	urls: string[];
+	universal?: boolean;
+	inline?: boolean;
+	at: 'universal' | 'site';
+	site?: string;
+	shouldLoad?(resource: resource): boolean;
 };
 
 type resourceType = 'scripts' | 'stylesheets' | 'json';
@@ -34,8 +34,8 @@ type shortcutType = 'Global' | 'ConfigOpen' | 'ConfigClosed';
 type shortcutCallback = (event: KeyboardEvent) => boolean;
 
 type shortcut = {
-  name: string;
-  callback: shortcutCallback;
+	name: string;
+	callback: shortcutCallback;
 };
 
-type registeredShortcut = { shortcutType: shortcutType, shortcut: shortcut };
+type registeredShortcut = { shortcutType: shortcutType; shortcut: shortcut };

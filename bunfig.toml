@@ -1,4 +1,2 @@
-preload = ["./html.js"]
-
 [loader]
 ".html" = "text"

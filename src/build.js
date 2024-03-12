@@ -1,4 +1,3 @@
-import { readdir } from 'node:fs/promises';
 import Bun, { $, Glob } from 'bun';
 
 const userScriptEnding = '// ==/UserScript==';
@@ -20,9 +19,7 @@ for await (const file of new Glob('./src/styles/*.css').scan('.')) {
 for await (const file of new Glob('./src/templates/*.html').scan('.')) {
 	try {
 		await import(`./${file.slice(6)}`);
-	} catch (e) {
-		console.error(e);
-	}
+	} catch (e) {}
 }
 // End hack job to get watch mode working
 
@@ -43,18 +40,21 @@ await $`cp ./styles/*.css ./build/`;
 await $`bunx @tailwindcss/cli@next --optimize -i src/styles/nws-lib.css -o build/nws-lib.css`;
 await $`bunx @tailwindcss/cli@next --optimize -i src/styles/manga-reading-script.css -o build/manga-reading-script.css`;
 
-const files = await readdir('./src');
-const userScripts = files.filter((file) => file.endsWith('.user.js'));
+const userScripts = new Glob('./src/**/*.user.js').scan('.');
 
-for (const userScript of userScripts) {
-	const markName = `mark-${userScript}`;
-	performance.mark(markName);
+for await (const userScript of userScripts) {
+	const lastIndex = userScript.lastIndexOf('/');
+	const fileName = userScript.slice(lastIndex + 1);
 
-	const src = `./src/${userScript}`;
-	const dest = `./build/${userScript}`;
+	performance.mark(fileName);
+
+	console.log(`Building ${fileName}...`);
+
+	const src = `./src/${fileName}`;
+	const dest = `./build/${fileName}`;
 
 	const buildResult = await Bun.build({
-		entrypoints: [src],
+		entrypoints: [userScript],
 		outdir: './build',
 		target: 'browser',
 		minify: false,
@@ -69,7 +69,7 @@ for (const userScript of userScripts) {
 	const builtFile = Bun.file(dest);
 	const content = await builtFile.text();
 
-	const srcFile = Bun.file(src);
+	const srcFile = Bun.file(userScript);
 	const srcContent = await srcFile.text();
 
 	const banner = getBannerFromContent(srcContent);
@@ -78,7 +78,7 @@ for (const userScript of userScripts) {
 
 	await Bun.write(dest, result);
 
-	const perfEntry = performance.measure(`build-${userScript}`, markName);
+	const perfEntry = performance.measure(`build-${fileName}`, fileName);
 
-	console.log(`Built ${userScript} in \x1b[33m${perfEntry.duration.toFixed(3)}ms\x1b[0m`);
+	console.log(`Built ${fileName} in \x1b[33m${perfEntry.duration.toFixed(3)}ms\x1b[0m`);
 }

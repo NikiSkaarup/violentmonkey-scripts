@@ -1,5 +1,5 @@
 // @ts-ignore
-import nwsLibFrame from './templates/nws-lib-frame.html';
+import nwsLibFrame from '../templates/nws-lib-frame.html';
 
 export default (() => {
 	const focusableSelector =
@@ -21,7 +21,8 @@ export default (() => {
 			data: '',
 			urls: [],
 			universal: true,
-			at: 'universal'
+			at: 'universal',
+			inline: true
 		},
 		{
 			name: 'nwsLibCss',
@@ -55,13 +56,37 @@ export default (() => {
 		return element;
 	}
 
-	const frame = createHTMLElement('div', 'nws-lib-frame');
-	frame.innerHTML = nwsLibFrame;
+	const frameParent = createHTMLElement('div', 'nws-lib-frame');
+	frameParent.innerHTML = nwsLibFrame;
+
+	const customElementRegistry = window.customElements;
+	customElementRegistry.define(
+		'nws-lib-frame',
+		class extends HTMLElement {
+			constructor() {
+				super();
+				const template = frameParent;
+				const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(
+					template.cloneNode(true)
+				);
+			}
+		}
+	);
+
+	const backdrop = /** @type {HTMLDivElement} */ (createHTMLElement('div', 'nws-backdrop'));
+	const outerFrame = document.createElement('nws-lib-frame');
+	const shadowRoot = /** @type {ShadowRoot} */ (outerFrame.shadowRoot);
+	const frame = /** @type {HTMLDivElement} */ (shadowRoot.children[0]);
+	const subConfigTarget = /** @type {HTMLDivElement} */ (
+		frame.querySelector('[data-nws-lib-sub-config-target]')
+	);
+	const debuggingCheckbox = /** @type {HTMLInputElement} */ (
+		frame.querySelector('[data-nws-lib-debugging-checkbox]')
+	);
 
 	const closeConfigButtons = /** @type {Array<HTMLButtonElement>} */ (
 		/** @type {any} */ (frame.querySelectorAll('[data-nws-lib-close]'))
 	);
-
 	for (const button of closeConfigButtons) {
 		button.onclick = closeConfig;
 		// button.addEventListener('click', closeConfig);
@@ -69,32 +94,21 @@ export default (() => {
 
 	// UI elements
 	const ui = {
-		configurationWindowContainer: /** @type {HTMLDivElement} */ (
-			createHTMLElement('div', 'nws-configuration-window-container')
-		),
-		configurationWindow: /** @type {HTMLDivElement} */ (
-			createHTMLElement('div', 'nws-configuration-window')
-		),
-		header: /** @type {HTMLHeadingElement} */ (createHTMLElement('h1', 'nws-header')),
-		configurationWindowSubContainer: /** @type {HTMLDivElement} */ (
-			frame.querySelector('[data-nws-lib-sub-config-target]')
-		),
-		backdrop: /** @type {HTMLDivElement} */ (createHTMLElement('div', 'nws-backdrop')),
-		debuggingCheckbox: /** @type {HTMLInputElement} */ (
-			frame.querySelector('[data-nws-lib-debugging-checkbox]')
-		),
-		btnClose: /** @type {HTMLButtonElement} */ (
-			createHTMLElement('button', 'nws-button nws-button-close')
-		)
+		backdrop,
+		outerFrame,
+		shadowRoot,
+		frame,
+		subConfigTarget,
+		debuggingCheckbox
 	};
 
 	/**
 	 * @type {{
-	 * [key: string]: {
-	 * name: string;
-	 * container: HTMLElement;
-	 * callback: () => void;
-	 * };
+	 *   [key: string]: {
+	 *     name: string;
+	 *     container: HTMLElement;
+	 *     callback: () => void;
+	 *   };
 	 * }}
 	 * */
 	const registeredConfigurations = {};
@@ -111,8 +125,7 @@ export default (() => {
 			callback
 		};
 
-		console.log(container);
-		ui.configurationWindowSubContainer.appendChild(container);
+		ui.subConfigTarget.appendChild(container);
 	}
 
 	/**
@@ -126,7 +139,6 @@ export default (() => {
 	/**
 	 * @param {unknown} message
 	 * @param {string} name
-	 * @returns {void}
 	 */
 	function externalDebug(message, name) {
 		if (!configGlobals.debugging) return;
@@ -203,19 +215,18 @@ export default (() => {
 			configGlobals.uiInitialized = true;
 		}
 		document.body.appendChild(ui.backdrop);
-		for (const registered of Object.values(registeredConfigurations)) registered.callback();
-
-		document.body.appendChild(ui.configurationWindowContainer);
-		document.body.appendChild(frame);
+		for (const registered of Object.values(registeredConfigurations)) {
+			registered.callback();
+		}
+		document.body.appendChild(outerFrame);
 
 		disableScrolling();
-		/** @type {HTMLInputElement | null} */ (document.querySelector('.nws input'))?.focus();
+		/** @type {HTMLInputElement | null} */ (shadowRoot.querySelector('.nws input'))?.focus();
 	}
 
 	function closeConfig() {
-		ui.configurationWindowContainer.remove();
 		ui.backdrop.remove();
-		frame.remove();
+		outerFrame.remove();
 		setConfigOpen(false);
 		enableScrolling();
 	}
@@ -226,7 +237,7 @@ export default (() => {
 	function tabSwitch(event) {
 		const target = /** @type {HTMLElement} */ (event.target);
 		const elements = /** @type {NodeListOf<HTMLElement>} */ (
-			ui.configurationWindowContainer.querySelectorAll(focusableSelector)
+			ui.frame.querySelectorAll(focusableSelector)
 		);
 		if (elements.length === 0) return;
 		const firstElement = elements[0];
@@ -257,7 +268,7 @@ export default (() => {
 
 	function attachFocusEvent() {
 		debug('Attaching focus event...');
-		ui.configurationWindowContainer.addEventListener('keydown', keydownEventListener);
+		ui.frame.addEventListener('keydown', keydownEventListener);
 		debug('Attached focus events.');
 	}
 
@@ -277,11 +288,13 @@ export default (() => {
 	 */
 	function loadScript(resource) {
 		resource.data = GM_getResourceText(resource.name);
-		const script = /** @type {HTMLScriptElement} */ (createHTMLElement('script'));
+		const script = document.createElement('script');
 		script.setAttribute('type', 'text/javascript');
+		script.setAttribute('data-nws-lib-script', '');
 		script.setAttribute('data-name', resource.name);
 		script.innerHTML = resource.data;
 		document.body.append(script);
+		// shadowroot.appendChild(script);
 	}
 
 	/**
@@ -289,11 +302,18 @@ export default (() => {
 	 */
 	function loadStyle(resource) {
 		resource.data = GM_getResourceText(resource.name);
-		const style = /** @type {HTMLStyleElement} */ (createHTMLElement('style'));
+		const style = document.createElement('style');
 		style.setAttribute('type', 'text/css');
+		style.setAttribute('data-nws-lib-style', '');
 		style.setAttribute('data-name', resource.name);
+		style.setAttribute('media', 'screen');
 		style.innerHTML = resource.data;
-		document.head.append(style);
+
+		if (resource.inline) {
+			document.head.append(style);
+		} else {
+			shadowRoot.appendChild(style);
+		}
 	}
 
 	/**
@@ -388,9 +408,14 @@ export default (() => {
 		for (const el of styles) {
 			el.remove();
 		}
+		// @ts-ignore
+		const stylesInShadowroot = [...shadowRoot.querySelectorAll(`style[${key.dataAttr}]`)];
+		for (const el of stylesInShadowroot) {
+			el.remove();
+		}
 
 		// @ts-ignore
-		const scripts = [...document.querySelectorAll(`script[${key.dataAttr}]`)];
+		const scripts = [...document.body.querySelectorAll(`script[${key.dataAttr}]`)];
 		for (const el of scripts) {
 			el.remove();
 		}
@@ -603,8 +628,11 @@ export default (() => {
 				altModifier
 			}
 		},
-		createHTMLElement: createHTMLElement,
+		createHTMLElement,
+		outerFrame,
+		shadowRoot,
+		frame,
 		debug: externalDebug,
-		init: init
+		init
 	};
 })();

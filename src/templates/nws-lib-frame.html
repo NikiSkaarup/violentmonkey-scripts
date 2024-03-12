@@ -5,23 +5,18 @@
 		class="flex max-h-[90dvh] w-full max-w-prose flex-col bg-gray-950/90 p-2 text-gray-200 shadow-gray-950"
 	>
 		<header>
-			<h1 class="mb-2 text-lg">NWS Lib Frame - Configuration UI</h1>
+			<h1 class="text-base">NWS Lib Frame - Configuration UI</h1>
 		</header>
 		<main class="flex flex-col gap-2 overflow-y-auto">
-			<div class="border-b border-b-indigo-400">
-				<label class="text-sm" for="nws-debugging-checkbox">
+			<div class="border-b border-solid border-b-indigo-400/50">
+				<label class="inline-flex items-center gap-2 text-xs" for="nws-debugging-checkbox">
 					Debugging:
-					<div class="nws-checkbox-container nws">
-						<input
-							class="nws-checkbox nws"
-							type="checkbox"
-							id="nws-debugging-checkbox"
-							data-nws-lib-debugging-checkbox=""
-						/>
-						<svg viewBox="0 0 24 24">
-							<path d="M1.73,12.91 8.1,19.28 22.79,4.59"></path>
-						</svg>
-					</div>
+					<input
+						class="cursor-pointer"
+						type="checkbox"
+						id="nws-debugging-checkbox"
+						data-nws-lib-debugging-checkbox=""
+					/>
 				</label>
 			</div>
 			<div class="flex flex-col gap-2" data-nws-lib-sub-config-target=""></div>
@@ -40,7 +35,7 @@
 			<div class="nws-buttons-container nws">
 				<div class="flex justify-end gap-2">
 					<button
-						class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
+						class="cursor-pointer border-none bg-indigo-800 px-1 text-sm text-gray-200 outline outline-4 outline-transparent transition-all hover:bg-indigo-600 hover:outline-indigo-500/80 disabled:cursor-default disabled:bg-indigo-900/70"
 						data-nws-lib-close=""
 					>
 						Close

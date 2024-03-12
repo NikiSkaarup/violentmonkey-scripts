@@ -1,41 +1,46 @@
 <div class="flex flex-col gap-2" data-mrs-config="">
-	<p class="border-b border-b-indigo-400">manga reading script v2 configuration</p>
-	<p class="border-b border-b-indigo-400 text-sm">
-		Current Title(affected by buttons): <span data-mrs-title-current=""></span>
+	<p class="border-b border-solid border-b-indigo-400/50 text-sm">
+		manga reading script v2 configuration
 	</p>
-	<div class="border-b border-b-indigo-400 text-sm">
+	<p class="border-b border-solid border-b-indigo-400/50 text-sm">
+		Current Title <span class="text-xs">(affected by buttons)</span>:
+		<span data-mrs-title-current=""></span>
+	</p>
+	<div class="flex flex-col gap-0.5 border-b border-solid border-b-indigo-400/50 pb-1 text-sm">
 		<label for="titleList"> Titles to remove gaps from: </label>
 		<textarea
-			class="resize-y border-none bg-transparent font-mono text-sm"
+			class="min-h-24 resize-y border-none bg-transparent pb-2 font-mono text-xs outline-4 outline-transparent focus:outline-indigo-500/80"
 			id="titleList"
 			rows="12"
 			data-mrs-title-list=""
 		></textarea>
 	</div>
-	<div class="flex justify-between border-b border-b-indigo-400">
-		<button
-			class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
-			disabled=""
-			data-mrs-title-current-remove=""
-		>
-			Remove
-		</button>
-		<button
-			class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
-			disabled=""
-			data-mrs-title-current-add=""
-		>
-			Add current
-		</button>
+	<div class="flex justify-between border-b border-solid border-b-indigo-400/50 pb-1">
 		<div class="flex justify-end gap-2">
 			<button
-				class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
+				class="cursor-pointer border-none bg-indigo-800 px-1 text-sm text-gray-200 outline outline-4 outline-transparent transition-all hover:bg-indigo-600 hover:outline-indigo-500/80 disabled:cursor-default disabled:bg-indigo-900/70"
+				disabled=""
+				data-mrs-title-current-add=""
+			>
+				Add
+			</button>
+			<button
+				class="cursor-pointer border-none bg-indigo-800 px-1 text-sm text-gray-200 outline outline-4 outline-transparent transition-all hover:bg-indigo-600 hover:outline-indigo-500/80 disabled:cursor-default disabled:bg-indigo-900/70"
+				disabled=""
+				data-mrs-title-current-remove=""
+			>
+				Remove
+			</button>
+		</div>
+		<div class="flex justify-end gap-2">
+			<button
+				class="cursor-pointer border-none bg-indigo-800 px-1 text-sm text-gray-200 outline outline-4 outline-transparent transition-all hover:bg-indigo-600 hover:outline-indigo-500/80 disabled:cursor-default disabled:bg-indigo-900/70"
 				data-mrs-title-list-reset=""
 			>
 				Reset
 			</button>
 			<button
-				class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
+				class="cursor-pointer border-none bg-indigo-800 px-1 text-sm text-gray-200 outline outline-4 outline-transparent transition-all hover:bg-indigo-600 hover:outline-indigo-500/80 disabled:cursor-default disabled:bg-indigo-900/70"
 				data-mrs-title-list-save=""
 			>
 				Save
