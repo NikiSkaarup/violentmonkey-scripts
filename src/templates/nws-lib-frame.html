@@ -2,9 +2,13 @@
 	class="nws-lib-frame fixed inset-0 isolate z-[999999] flex items-center justify-center p-4 font-sans"
 >
 	<div
-		class="flex max-h-[90dvh] w-full max-w-prose flex-col bg-gray-950/90 p-2 text-gray-200 shadow-gray-950"
+		class="absolute inset-0 -z-10 overscroll-none bg-black/5 backdrop-blur-sm"
+		data-nws-lib-backdrop=""
+	></div>
+	<div
+		class="z-10 flex max-h-[90dvh] w-full max-w-prose flex-col bg-gray-950/90 p-2 text-gray-200 shadow-gray-950 backdrop-blur-sm"
 	>
-		<header>
+		<header class="border-b border-solid border-b-indigo-400/50">
 			<h1 class="text-base">NWS Lib Frame - Configuration UI</h1>
 		</header>
 		<main class="flex flex-col gap-2 overflow-y-auto">
@@ -21,17 +25,15 @@
 			</div>
 			<div class="flex flex-col gap-2" data-nws-lib-sub-config-target=""></div>
 		</main>
-		<footer class="flex items-end justify-between">
-			<h2>
-				<a
-					class="text-xs text-indigo-400 hover:text-indigo-300"
-					href="https://userscripts.skaarup.dev"
-					target="_blank"
-					referrerpolicy="no-referrer"
-				>
-					userscripts.skaarup.dev
-				</a>
-			</h2>
+		<footer class="flex items-end justify-between pt-1">
+			<a
+				class="text-xs text-indigo-400 hover:text-indigo-300"
+				href="https://userscripts.skaarup.dev"
+				target="_blank"
+				referrerpolicy="no-referrer"
+			>
+				userscripts.skaarup.dev
+			</a>
 			<div class="nws-buttons-container nws">
 				<div class="flex justify-end gap-2">
 					<button

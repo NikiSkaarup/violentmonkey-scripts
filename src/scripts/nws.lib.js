@@ -17,14 +17,6 @@ export default (() => {
 	/** @type {Array<resource>} */
 	const styleResources = [
 		{
-			name: 'configuration-ui',
-			data: '',
-			urls: [],
-			universal: true,
-			at: 'universal',
-			inline: true
-		},
-		{
 			name: 'nwsLibCss',
 			data: '',
 			urls: [],
@@ -56,8 +48,8 @@ export default (() => {
 		return element;
 	}
 
-	const frameParent = createHTMLElement('div', 'nws-lib-frame');
-	frameParent.innerHTML = nwsLibFrame;
+	const frameTemplate = createHTMLElement('div', 'nws-lib-outer-frame');
+	frameTemplate.innerHTML = nwsLibFrame;
 
 	const customElementRegistry = window.customElements;
 	customElementRegistry.define(
@@ -65,31 +57,31 @@ export default (() => {
 		class extends HTMLElement {
 			constructor() {
 				super();
-				const template = frameParent;
 				const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(
-					template.cloneNode(true)
+					frameTemplate.cloneNode(true)
 				);
 			}
 		}
 	);
 
-	const backdrop = /** @type {HTMLDivElement} */ (createHTMLElement('div', 'nws-backdrop'));
 	const outerFrame = document.createElement('nws-lib-frame');
 	const shadowRoot = /** @type {ShadowRoot} */ (outerFrame.shadowRoot);
 	const frame = /** @type {HTMLDivElement} */ (shadowRoot.children[0]);
+	const backdrop = /** @type {HTMLDivElement} */ (frame.querySelector('[data-nws-lib-backdrop]'));
+	backdrop.onclick = closeConfig;
+
 	const subConfigTarget = /** @type {HTMLDivElement} */ (
 		frame.querySelector('[data-nws-lib-sub-config-target]')
 	);
 	const debuggingCheckbox = /** @type {HTMLInputElement} */ (
 		frame.querySelector('[data-nws-lib-debugging-checkbox]')
 	);
-
 	const closeConfigButtons = /** @type {Array<HTMLButtonElement>} */ (
 		/** @type {any} */ (frame.querySelectorAll('[data-nws-lib-close]'))
 	);
+
 	for (const button of closeConfigButtons) {
 		button.onclick = closeConfig;
-		// button.addEventListener('click', closeConfig);
 	}
 
 	// UI elements
@@ -162,8 +154,11 @@ export default (() => {
 	 * @param {unknown} message
 	 */
 	function debug(message) {
-		if (!configGlobals.debugging) return;
-		externalDebug(message, 'Lib');
+		if (!configGlobals.debugging) {
+			return;
+		}
+
+		externalDebug(message, 'lib');
 	}
 
 	/**
@@ -172,7 +167,7 @@ export default (() => {
 	function setDebugging(value) {
 		GM_setValue(key.debugging, value);
 		configGlobals.debugging = value;
-		console.log('NWS - Debugging set to:', value);
+		console.log('NWS - lib - Debugging set to:', value);
 	}
 
 	/**
@@ -214,18 +209,19 @@ export default (() => {
 			initConfigUI();
 			configGlobals.uiInitialized = true;
 		}
-		document.body.appendChild(ui.backdrop);
+
 		for (const registered of Object.values(registeredConfigurations)) {
 			registered.callback();
 		}
+
 		document.body.appendChild(outerFrame);
 
 		disableScrolling();
-		/** @type {HTMLInputElement | null} */ (shadowRoot.querySelector('.nws input'))?.focus();
+
+		/** @type {HTMLInputElement | null} */ (shadowRoot.querySelector('input'))?.focus();
 	}
 
 	function closeConfig() {
-		ui.backdrop.remove();
 		outerFrame.remove();
 		setConfigOpen(false);
 		enableScrolling();
@@ -239,7 +235,11 @@ export default (() => {
 		const elements = /** @type {NodeListOf<HTMLElement>} */ (
 			ui.frame.querySelectorAll(focusableSelector)
 		);
-		if (elements.length === 0) return;
+
+		if (elements.length === 0) {
+			return;
+		}
+
 		const firstElement = elements[0];
 		const lastElement = elements[elements.length - 1];
 
@@ -256,14 +256,17 @@ export default (() => {
 	 * @param {KeyboardEvent} event
 	 */
 	function keydownEventListener(event) {
-		switch (true) {
-			case event.code === 'Tab':
-				tabSwitch(event);
-				return true;
-			case event.code === 'Tab' && event.shiftKey:
-				tabSwitch(event);
-				return true;
+		if (event.code === 'Tab') {
+			tabSwitch(event);
+			return true;
 		}
+
+		if (event.code === 'Tab' && event.shiftKey) {
+			tabSwitch(event);
+			return true;
+		}
+
+		return false;
 	}
 
 	function attachFocusEvent() {
@@ -293,8 +296,8 @@ export default (() => {
 		script.setAttribute('data-nws-lib-script', '');
 		script.setAttribute('data-name', resource.name);
 		script.innerHTML = resource.data;
+
 		document.body.append(script);
-		// shadowroot.appendChild(script);
 	}
 
 	/**
@@ -306,7 +309,6 @@ export default (() => {
 		style.setAttribute('type', 'text/css');
 		style.setAttribute('data-nws-lib-style', '');
 		style.setAttribute('data-name', resource.name);
-		style.setAttribute('media', 'screen');
 		style.innerHTML = resource.data;
 
 		if (resource.inline) {
@@ -338,28 +340,24 @@ export default (() => {
 			debug(`Skipping ${resource.name} of type: ${resourceType}...`);
 			return;
 		}
+
 		debug(`Loading resource: ${resource.name} of type: ${resourceType}...`);
 
-		switch (resourceType) {
-			case 'scripts':
-				loadScript(resource);
-				break;
-			case 'stylesheets':
-				loadStyle(resource);
-				break;
-			case 'json':
-				loadJSON(resource);
-				break;
-			default:
-				break;
+		if (resourceType === 'scripts') {
+			loadScript(resource);
+		} else if (resourceType === 'stylesheets') {
+			loadStyle(resource);
+		} else if (resourceType === 'json') {
+			loadJSON(resource);
 		}
+
 		debug(`Loaded resource: ${resource.name} of type: ${resourceType}.`);
 	}
 
 	/**
 	 * @type {Array<{
-	 * resource: resource;
-	 * resourceType: resourceType;
+	 *   resource: resource;
+	 *   resourceType: resourceType;
 	 * }>}
 	 */
 	const registeredResources = [];
@@ -520,7 +518,9 @@ export default (() => {
 		];
 
 		for (const registered of shortcuts) {
-			if (registered.shortcut.callback(event)) return;
+			if (registered.shortcut.callback(event)) {
+				return;
+			}
 		}
 	}
 
@@ -547,7 +547,9 @@ export default (() => {
 		const index = registeredKeyUpShortCuts.findIndex(
 			(registered) => registered.shortcut.name === name
 		);
-		if (index > -1) registeredKeyUpShortCuts.splice(index, 1);
+		if (index > -1) {
+			registeredKeyUpShortCuts.splice(index, 1);
+		}
 	}
 
 	function registerKeyUps() {
@@ -572,7 +574,7 @@ export default (() => {
 	async function onInit(callback) {
 		try {
 			setDebugging(GM_getValue(key.debugging, false));
-			console.log(`NWS lib - ${GM_info.script.name} - Loading...`);
+			console.log(`NWS - lib - ${GM_info.script.name} - Loading...`);
 			GM_registerMenuCommand(`Configure ${GM_info.script.name}`, () => {
 				openConfig();
 			});
@@ -580,11 +582,11 @@ export default (() => {
 			registerResources();
 			attachFocusEvent();
 			attachShortcutEvents();
-			console.log(`NWS lib - ${GM_info.script.name} - Loaded.`);
+			console.log(`NWS - lib - ${GM_info.script.name} - Loaded.`);
 			await callback();
 			await loadResources();
 		} catch (e) {
-			console.log('NWS lib - Error:', e);
+			console.log('NWS - lib - Error:', e);
 		}
 	}
 
@@ -592,7 +594,7 @@ export default (() => {
 	 * @param {() => Promise<void>} callback
 	 */
 	async function init(callback) {
-		console.log('NWS lib - Initializing...');
+		console.log('NWS - lib - Initializing...');
 		switch (document.readyState) {
 			case 'complete':
 				await onInit(callback);
@@ -601,7 +603,7 @@ export default (() => {
 				await onInit(callback);
 				break;
 			case 'loading':
-				setTimeout(init, 0, callback);
+				setTimeout(init, 10, callback);
 				break;
 		}
 	}
