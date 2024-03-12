@@ -1,7 +1,30 @@
 import { readdir } from 'node:fs/promises';
-import Bun, { $ } from 'bun';
+import Bun, { $, Glob } from 'bun';
 
 const userScriptEnding = '// ==/UserScript==';
+
+// Start hack job to get watch mode working
+for await (const file of new Glob('./src/**/*.user.js').scan('.')) {
+	try {
+		// hack to get the document object to exist for the user scripts
+		// otherwise they throw an error when importing which breaks watch mode
+		globalThis.document = /** @type {any}*/ ({});
+		await import(`./${file.slice(6)}`);
+	} catch (e) {}
+}
+for await (const file of new Glob('./src/styles/*.css').scan('.')) {
+	try {
+		await import(`./${file.slice(6)}`);
+	} catch (e) {}
+}
+for await (const file of new Glob('./src/templates/*.html').scan('.')) {
+	try {
+		await import(`./${file.slice(6)}`);
+	} catch (e) {
+		console.error(e);
+	}
+}
+// End hack job to get watch mode working
 
 /**
  * @param {string} content
@@ -12,13 +35,16 @@ function getBannerFromContent(content) {
 	return content.slice(0, index + userScriptEnding.length);
 }
 
-const files = await readdir('./src');
-const userScripts = files.filter((file) => file.endsWith('.user.js'));
-
+// create build directory if it doesn't exist
 await $`mkdir -p ./build`;
 
 // copy static css to build output
 await $`cp ./styles/*.css ./build/`;
+await $`bunx @tailwindcss/cli@next --optimize -i src/styles/nws-lib.css -o build/nws-lib.css`;
+await $`bunx @tailwindcss/cli@next --optimize -i src/styles/manga-reading-script.css -o build/manga-reading-script.css`;
+
+const files = await readdir('./src');
+const userScripts = files.filter((file) => file.endsWith('.user.js'));
 
 for (const userScript of userScripts) {
 	const markName = `mark-${userScript}`;
@@ -32,17 +58,7 @@ for (const userScript of userScripts) {
 		outdir: './build',
 		target: 'browser',
 		minify: false,
-		plugins: [
-			{
-				name: 'html',
-				setup(build) {
-					build.onLoad({ filter: /\.(html)$/ }, async (args) => ({
-						contents: await Bun.file(args.path).text(),
-						loader: 'text'
-					}));
-				}
-			}
-		]
+		loader: { '.html': 'text' }
 	});
 
 	if (!buildResult.success) {

@@ -5,15 +5,12 @@
   "type": "module",
   "module": "src/index.js",
   "scripts": {
-    "dev-old": "npx concurrently -n httpserver,typescript,styles,json,build -c cyan,magentaBright,green,blue,redBright \"npm run serve\" \"npm run typescript\" \"npm run styles\" \"npm run json\" \"npm run build-watch\"",
-    "dev": "bunx concurrently -n elysia,bundle,tailwind -c cyan,magentaBright,green \"bun elysia:watch\" \"bun bundle:watch\" \"bun tailwind:watch\"",
-    "start": "bunx concurrently -n elysia,bundle,tailwind,-c cyan,magentaBright,green \"bun elysia\" \"bun bundle\" \"bun tailwind\"",
+    "dev": "bunx concurrently -n elysia,bundle -c cyan,magentaBright,green,blue,redBright \"bun elysia:watch\" \"bun bundle:watch\"",
+    "start": "bunx concurrently -n elysia,bundle,-c cyan,magentaBright,green,blue,redBright \"bun elysia\" \"bun bundle\"",
     "elysia": "bun run src/index.js",
     "elysia:watch": "bun run --watch src/index.js",
     "bundle": "bun run src/build.js",
-    "bundle:watch": "bun run --watch src/build.js",
-    "tailwind": "bun run src/styles.js",
-    "tailwind:watch": "bun run --watch src/styles.js"
+    "bundle:watch": "bun run --watch src/build.js"
   },
   "author": "nws",
   "license": "MIT",
@@ -29,6 +26,6 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "next",
-    "elysia": "^0.8.17"
+    "elysia": "^1.0.0-rc.15"
   }
 }
