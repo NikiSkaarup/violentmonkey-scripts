@@ -38,7 +38,7 @@
   TODO: Update to show if a creator is live in sidebar
 */
 
-import nws from './nws.lib';
+import nws from '../nws.lib';
 
 const floatplaneScript2 = () => {
   const debug = (message: unknown) => nws.debug(message, GM_info.script.name);

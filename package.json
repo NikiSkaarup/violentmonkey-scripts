@@ -3,30 +3,32 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
+  "module": "src/index.js",
   "scripts": {
-    "serve": "npx http-server ./dist -s -c-1 --cors -p 8432 -a 127.0.0.1 -d false -i false",
-    "build": "node ./build.js",
-    "typescript": "npx tsc -w -noEmit --preserveWatchOutput --strict",
-    "build-watch": "npx nodemon --watch ./src -e ts --exec \"npm run build\"",
-    "styles": "npx nodemon --watch ./styles -e css --exec \"npx copyfiles ./styles/**.css ./dist\"",
-    "json": "npx nodemon --watch ./json -e json --exec \"npx copyfiles ./json/**.json ./dist\"",
-    "dev": "npx concurrently -n httpserver,typescript,styles,json,build -c cyan,magentaBright,green,blue,redBright \"npm run serve\" \"npm run typescript\" \"npm run styles\" \"npm run json\" \"npm run build-watch\"",
-    "start": "npm run dev"
+    "dev-old": "npx concurrently -n httpserver,typescript,styles,json,build -c cyan,magentaBright,green,blue,redBright \"npm run serve\" \"npm run typescript\" \"npm run styles\" \"npm run json\" \"npm run build-watch\"",
+    "dev": "bunx concurrently -n elysia,bundle,tailwind -c cyan,magentaBright,green \"bun elysia:watch\" \"bun bundle:watch\" \"bun tailwind:watch\"",
+    "start": "bunx concurrently -n elysia,bundle,tailwind,-c cyan,magentaBright,green \"bun elysia\" \"bun bundle\" \"bun tailwind\"",
+    "elysia": "bun run src/index.js",
+    "elysia:watch": "bun run --watch src/index.js",
+    "bundle": "bun run src/build.js",
+    "bundle:watch": "bun run --watch src/build.js",
+    "tailwind": "bun run src/styles.js",
+    "tailwind:watch": "bun run --watch src/styles.js"
   },
   "author": "nws",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.16.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.0",
-    "@typescript-eslint/parser": "^5.59.0",
-    "concurrently": "^8.0.1",
-    "copyfiles": "^2.4.1",
-    "esbuild": "^0.17.18",
-    "eslint": "^8.39.0",
+    "@types/bun": "latest",
+    "eslint": "^9.0.0-beta.2",
     "eslint-config-greasemonkey": "^1.0.1",
-    "greasemonkey": "./types/greasemonkey",
-    "nodemon": "^2.0.22",
-    "typescript": "^5.0.4",
-    "violentmonkey": "./types/violentmonkey"
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.12",
+    "tailwindcss": "next",
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "next",
+    "elysia": "^0.8.17"
   }
 }

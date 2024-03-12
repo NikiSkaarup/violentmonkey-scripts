@@ -1,0 +1,45 @@
+<div class="flex flex-col gap-2" data-mrs-config="">
+	<p class="border-b border-b-indigo-400">manga reading script v2 configuration</p>
+	<p class="border-b border-b-indigo-400 text-sm">
+		Current Title(affected by buttons): <span data-mrs-title-current=""></span>
+	</p>
+	<div class="border-b border-b-indigo-400 text-sm">
+		<label for="titleList"> Titles to remove gaps from: </label>
+		<textarea
+			class="resize-y border-none bg-transparent font-mono text-sm"
+			id="titleList"
+			rows="12"
+			data-mrs-title-list=""
+		></textarea>
+	</div>
+	<div class="flex justify-between border-b border-b-indigo-400">
+		<button
+			class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
+			disabled=""
+			data-mrs-title-current-remove=""
+		>
+			Remove
+		</button>
+		<button
+			class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
+			disabled=""
+			data-mrs-title-current-add=""
+		>
+			Add current
+		</button>
+		<div class="flex justify-end gap-2">
+			<button
+				class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
+				data-mrs-title-list-reset=""
+			>
+				Reset
+			</button>
+			<button
+				class="border-none bg-indigo-800 text-gray-200 transition-[outline,background-color] hover:bg-indigo-600 hover:outline-4 hover:outline-indigo-500/80"
+				data-mrs-title-list-save=""
+			>
+				Save
+			</button>
+		</div>
+	</div>
+</div>
