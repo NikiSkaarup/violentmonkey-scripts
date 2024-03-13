@@ -37,6 +37,8 @@
 
 /*
  * TODO: Rewrite in jsdoc and get rid of the compile step
+ * TODO: Add a way to "GOTO" chapter when on a manga page
+ * TODO: Add a way to "GOTO" manga when on a chapter page
  * TODO: store data in json, for more customization per manga.
  * TODO: add a togglable reading mode that lets you press once to scroll each image which will at most 100vh tall
  */
