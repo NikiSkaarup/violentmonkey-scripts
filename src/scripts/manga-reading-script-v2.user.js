@@ -715,7 +715,7 @@ function mangaReadingScript() {
 			clearTimeout(timer);
 
 			if (!response.ok) {
-				console.error('Failed to fetch bookmarks', response);
+				console.error('Failed to fetch bookmarks');
 				return [];
 			}
 
@@ -743,12 +743,12 @@ function mangaReadingScript() {
 			clearTimeout(timer);
 
 			if (!response.ok) {
-				console.error('Failed to delete bookmark', response);
+				console.error('Failed to delete bookmark');
 				return false;
 			}
 			return true;
 		} catch (e) {
-			console.error('Failed to fetch bookmarks');
+			console.error('Failed to delete bookmarks');
 			return false;
 		}
 	}
@@ -772,12 +772,12 @@ function mangaReadingScript() {
 			clearTimeout(timer);
 
 			if (!response.ok) {
-				console.error('Failed to update bookmark', response);
+				console.error('Failed to update bookmark');
 				return false;
 			}
 			return true;
 		} catch (e) {
-			console.error('Failed to fetch bookmarks');
+			console.error('Failed to update bookmarks');
 			return false;
 		}
 	}
@@ -800,7 +800,7 @@ function mangaReadingScript() {
 			clearTimeout(timer);
 
 			if (!response.ok) {
-				console.error('Failed to check bookmark', response);
+				console.error('Failed to check bookmark');
 				return false;
 			}
 			return true;
@@ -828,7 +828,7 @@ function mangaReadingScript() {
 			clearTimeout(timer);
 
 			if (!response.ok) {
-				console.error('Failed to create bookmark', response);
+				console.error('Failed to create bookmark');
 				return false;
 			}
 			return true;
