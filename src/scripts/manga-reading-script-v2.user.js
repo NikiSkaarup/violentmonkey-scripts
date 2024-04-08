@@ -72,9 +72,13 @@ function mangaReadingScript() {
 			atMangaRegex: /(?:)/,
 			titleLinkSelector: '',
 			nextChapterSelector: '',
-			prevChapterSelector: ''
+			prevChapterSelector: '',
 		},
 		titleList: [],
+		ptApi: {
+			url: '',
+			bearerToken: '',
+		},
 		sites: {
 			manganato: {
 				name: 'manganato',
@@ -82,7 +86,7 @@ function mangaReadingScript() {
 					'https://readmanganato.com',
 					'https://manganato.com',
 					'https://chapmanganato.com',
-					'https://chapmanganato.to'
+					'https://chapmanganato.to',
 				],
 				active: false,
 				at: 'neither',
@@ -92,7 +96,7 @@ function mangaReadingScript() {
 				atMangaRegex: /https:\/\/(?:read|chap)?manganato.(?:com|to)\/manga-[\w.\-~%]+$/,
 				titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
 				nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
-				prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h'
+				prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
 			},
 			manganelo: {
 				name: 'manganelo',
@@ -104,9 +108,9 @@ function mangaReadingScript() {
 				atMangaRegex: /https:\/\/(?:manganelo\.com)\/(?:manga\/[\w.\-~%]+|read-[\w.\-~%]+)/,
 				titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
 				nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
-				prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h'
-			}
-		}
+				prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
+			},
+		},
 	};
 
 	/**
@@ -151,12 +155,12 @@ function mangaReadingScript() {
 				'https://readmanganato.com',
 				'https://manganato.com',
 				'https://chapmanganato.com',
-				'https://chapmanganato.to'
+				'https://chapmanganato.to',
 			],
 			at: 'site',
 			site: 'global',
 			shouldLoad: shouldLoad,
-			inline: true
+			inline: true,
 		},
 		{
 			name: 'manganatoOverridesNeither',
@@ -165,12 +169,12 @@ function mangaReadingScript() {
 				'https://readmanganato.com',
 				'https://manganato.com',
 				'https://chapmanganato.com',
-				'https://chapmanganato.to'
+				'https://chapmanganato.to',
 			],
 			at: 'site',
 			site: 'neither',
 			shouldLoad: shouldLoad,
-			inline: true
+			inline: true,
 		},
 		{
 			name: 'manganatoOverridesChapter',
@@ -179,12 +183,12 @@ function mangaReadingScript() {
 				'https://readmanganato.com',
 				'https://manganato.com',
 				'https://chapmanganato.com',
-				'https://chapmanganato.to'
+				'https://chapmanganato.to',
 			],
 			at: 'site',
 			site: 'chapter',
 			shouldLoad: shouldLoad,
-			inline: true
+			inline: true,
 		},
 		{
 			name: 'manganatoOverridesManga',
@@ -193,12 +197,12 @@ function mangaReadingScript() {
 				'https://readmanganato.com',
 				'https://manganato.com',
 				'https://chapmanganato.com',
-				'https://chapmanganato.to'
+				'https://chapmanganato.to',
 			],
 			at: 'site',
 			site: 'manga',
 			shouldLoad: shouldLoad,
-			inline: true
+			inline: true,
 		},
 		{
 			name: 'manganatoOverridesChapterOrManga',
@@ -207,13 +211,13 @@ function mangaReadingScript() {
 				'https://readmanganato.com',
 				'https://manganato.com',
 				'https://chapmanganato.com',
-				'https://chapmanganato.to'
+				'https://chapmanganato.to',
 			],
 			at: 'site',
 			site: 'chapterOrManga',
 			shouldLoad: shouldLoad,
-			inline: true
-		}
+			inline: true,
+		},
 	];
 	/** @type {Array<manga_reading.resourceType>} */
 	const jsonResources = [];
@@ -222,13 +226,14 @@ function mangaReadingScript() {
 
 	/** @type {{ titleList: Array<string> }} */
 	const defaults = {
-		titleList: []
+		titleList: [],
 	};
 
 	const key = {
 		firstRun: 'firstRun',
 		titleList: 'titleList',
-		dataAttr: 'data-nws-manga-reading-script'
+		dataAttr: 'data-nws-manga-reading-script',
+		ptAPi: 'ptApi',
 	};
 
 	const temp = document.createElement('div');
@@ -236,6 +241,12 @@ function mangaReadingScript() {
 	const configElement = /** @type {HTMLDivElement} */ (temp.children[0]);
 
 	const ui = {
+		ptApiUrl: /** @type {HTMLInputElement} */ (
+			configElement.querySelector('[data-mrs-pt-api-url]')
+		),
+		ptApiBearerToken: /** @type {HTMLInputElement} */ (
+			configElement.querySelector('[data-mrs-pt-api-bearer-token]')
+		),
 		titleList: /** @type {HTMLTextAreaElement} */ (
 			configElement.querySelector('[data-mrs-title-list]')
 		),
@@ -253,7 +264,7 @@ function mangaReadingScript() {
 		),
 		btnReset: /** @type {HTMLButtonElement} */ (
 			configElement.querySelector('[data-mrs-title-list-reset]')
-		)
+		),
 	};
 
 	/**
@@ -273,6 +284,11 @@ function mangaReadingScript() {
 
 	function setTitleList() {
 		ui.titleList.value = globals.titleList.join('\r\n');
+	}
+
+	function setPTUi() {
+		ui.ptApiUrl.value = globals.ptApi.url;
+		ui.ptApiBearerToken.value = globals.ptApi.bearerToken;
 	}
 
 	function atNeither() {
@@ -328,9 +344,7 @@ function mangaReadingScript() {
 		const pageWidth = document.body.clientWidth;
 
 		/** @type {Array<HTMLImageElement>} */
-		const images = /** @type {any} */ (
-			document.querySelectorAll('.container-chapter-reader img')
-		);
+		const images = /** @type {any} */ (document.querySelectorAll('.container-chapter-reader img'));
 
 		if (input === 'auto w' || input === 'w') {
 			for (const image of images) {
@@ -343,9 +357,7 @@ function mangaReadingScript() {
 		if (input === 'auto h' || input === 'h') {
 			for (const image of images) {
 				image.style.width = `${(pageWidth / image.width) * 100}%`;
-				image.style.width = `${
-					(window?.visualViewport?.height ?? 1 / image.height) * 100
-				}%`;
+				image.style.width = `${(window?.visualViewport?.height ?? 1 / image.height) * 100}%`;
 			}
 
 			return;
@@ -373,10 +385,14 @@ function mangaReadingScript() {
 			ui.titleList.value = globals.titleList.join('\r\n');
 		};
 
-		ui.btnSave.onclick = saveTitles;
+		ui.btnSave.onclick = () => {
+			saveTitles();
+			savePtApi();
+		};
 
 		nws.config.register(GM_info, configElement, () => {
 			setTitleList();
+			setPTUi();
 			ui.btnRemove.disabled = atNeither();
 			ui.btnAdd.disabled = atNeither();
 		});
@@ -401,6 +417,12 @@ function mangaReadingScript() {
 		if (atChapter()) {
 			removeMargins();
 		}
+	}
+
+	function savePtApi() {
+		globals.ptApi.url = ui.ptApiUrl.value.trim();
+		globals.ptApi.bearerToken = ui.ptApiBearerToken.value.trim();
+		GM_setValue(key.ptAPi, JSON.stringify(globals.ptApi));
 	}
 
 	function removeTitle() {
@@ -449,11 +471,7 @@ function mangaReadingScript() {
 		if (globals.titleList.includes(globals.currentTitle)) {
 			margin = '0 auto';
 
-			setStyle(
-				document.querySelectorAll('.container-chapter-reader > div'),
-				'display',
-				'none'
-			);
+			setStyle(document.querySelectorAll('.container-chapter-reader > div'), 'display', 'none');
 		}
 
 		setStyle(document.querySelectorAll('.container-chapter-reader img'), 'margin', margin);
@@ -501,11 +519,19 @@ function mangaReadingScript() {
 	function loadTitleList() {
 		debug('Loading title list...');
 
-		globals.titleList = JSON.parse(
-			GM_getValue(key.titleList, JSON.stringify(defaults.titleList))
-		);
+		globals.titleList = JSON.parse(GM_getValue(key.titleList, JSON.stringify(defaults.titleList)));
 
 		debug('Loaded title list.');
+	}
+
+	function loadPtApi() {
+		debug('Loading progress tracker api...');
+
+		globals.ptApi = JSON.parse(
+			GM_getValue(key.ptAPi, JSON.stringify({ url: '', bearerToken: '' })),
+		);
+
+		debug('Loaded progress tracker api.');
 	}
 
 	function manganatoSiteOverrides() {
@@ -579,15 +605,11 @@ function mangaReadingScript() {
 	 */
 	function genreAllGoToPage(direction) {
 		const pageSelected = /** @type {HTMLAnchorElement | null} */ (
-			document.querySelector(
-				'.panel-page-number > .group-page > a.page-select:not(.page-blue)'
-			)
+			document.querySelector('.panel-page-number > .group-page > a.page-select:not(.page-blue)')
 		);
 		if (!pageSelected) return;
 
-		const previous = /** @type {HTMLAnchorElement | null} */ (
-			pageSelected.previousElementSibling
-		);
+		const previous = /** @type {HTMLAnchorElement | null} */ (pageSelected.previousElementSibling);
 
 		const next = /** @type {HTMLAnchorElement | null} */ (pageSelected.nextElementSibling);
 
@@ -609,7 +631,7 @@ function mangaReadingScript() {
 				/** @type {any} */ (
 					document.querySelectorAll('div.panel-content-genres > div.content-genres-item')
 				)
-			)
+			),
 		];
 
 		if (genreAllItems.length > 0) {
@@ -661,13 +683,279 @@ function mangaReadingScript() {
 
 		genreAllItems[genreAllItemsIndex].scrollIntoView({
 			behavior: 'smooth',
-			block: 'center'
+			block: 'center',
 		});
 
 		window.getSelection()?.removeAllRanges();
 	}
 
 	const shortcutHelpers = nws.shortcut.helpers;
+
+	/** @typedef {{input: string; headers: HeadersInit}} Options */
+	/** @typedef {{name: string; href: string}} PTBody */
+
+	/**
+	 * @param {Options} options
+	 * @param {string | undefined} q
+	 * @returns {Promise<Array<any>>}
+	 */
+	async function query(options, q = undefined) {
+		try {
+			// signal
+			const controller = new AbortController();
+			const timer = setTimeout(() => controller.abort(), 5000);
+
+			const input = q !== undefined ? `${options.input}?q=${q}` : options.input;
+			const response = await fetch(input, {
+				method: 'GET',
+				signal: controller.signal,
+				headers: options.headers,
+			});
+
+			clearTimeout(timer);
+
+			if (!response.ok) {
+				console.error('Failed to fetch bookmarks', response);
+				return [];
+			}
+
+			return response.json();
+		} catch (e) {
+			console.error('Failed to fetch bookmarks');
+			return [];
+		}
+	}
+
+	/**
+	 * @param {Options} options
+	 * @param {number} id
+	 */
+	async function remove(options, id) {
+		try {
+			// signal
+			const controller = new AbortController();
+			const timer = setTimeout(() => controller.abort(), 5000);
+
+			const response = await fetch(`${options.input}/${id}`, {
+				method: 'DELETE',
+				headers: options.headers,
+			});
+			clearTimeout(timer);
+
+			if (!response.ok) {
+				console.error('Failed to delete bookmark', response);
+				return false;
+			}
+			return true;
+		} catch (e) {
+			console.error('Failed to fetch bookmarks');
+			return false;
+		}
+	}
+
+	/**
+	 * @param {Options} options
+	 * @param {PTBody} body
+	 * @param {number} id
+	 */
+	async function update(options, body, id) {
+		try {
+			// signal
+			const controller = new AbortController();
+			const timer = setTimeout(() => controller.abort(), 5000);
+
+			const response = await fetch(`${options.input}/${id}`, {
+				method: 'PUT',
+				body: JSON.stringify(body),
+				headers: options.headers,
+			});
+			clearTimeout(timer);
+
+			if (!response.ok) {
+				console.error('Failed to update bookmark', response);
+				return false;
+			}
+			return true;
+		} catch (e) {
+			console.error('Failed to fetch bookmarks');
+			return false;
+		}
+	}
+
+	/**
+	 * @param {Options} options
+	 * @param {number} id
+	 * @param {boolean} finished
+	 */
+	async function check(options, id, finished) {
+		try {
+			// signal
+			const controller = new AbortController();
+			const timer = setTimeout(() => controller.abort(), 5000);
+
+			const response = await fetch(`${options.input}/${id}/check/${finished}`, {
+				method: 'PUT',
+				headers: options.headers,
+			});
+			clearTimeout(timer);
+
+			if (!response.ok) {
+				console.error('Failed to check bookmark', response);
+				return false;
+			}
+			return true;
+		} catch (e) {
+			console.error('Failed to check bookmark');
+			return false;
+		}
+	}
+
+	/**
+	 * @param {Options} options
+	 * @param {PTBody} body
+	 */
+	async function create(options, body) {
+		try {
+			// signal
+			const controller = new AbortController();
+			const timer = setTimeout(() => controller.abort(), 5000);
+
+			const response = await fetch(options.input, {
+				method: 'POST',
+				body: JSON.stringify(body),
+				headers: options.headers,
+			});
+			clearTimeout(timer);
+
+			if (!response.ok) {
+				console.error('Failed to create bookmark', response);
+				return false;
+			}
+			return true;
+		} catch (e) {
+			console.error('Failed to create bookmarks');
+			return false;
+		}
+	}
+
+	function getProgressTrackerApi() {
+		const baseUrl = globals.ptApi.url;
+		const input = `${baseUrl}/bookmarks`;
+		const bearerToken = globals.ptApi.bearerToken;
+		const noBodyHeaders = new Headers({
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${bearerToken}`,
+		});
+		const bodyHeaders = new Headers({
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${bearerToken}`,
+		});
+
+		return { baseUrl, input, bearerToken, noBodyHeaders, bodyHeaders };
+	}
+
+	async function removeMangaFromProgressTracker() {
+		const chapter = atChapter();
+		const manga = atManga();
+		const chapterOrManga = chapter || manga;
+
+		if (!chapterOrManga) {
+			return;
+		}
+
+		if (globals.ptApi.url === '' || globals.ptApi.bearerToken === '') {
+			console.warn('Progress Tracker API URL and Bearer Token must be set.');
+			return;
+		}
+
+		const { baseUrl, input, bearerToken, noBodyHeaders, bodyHeaders } = getProgressTrackerApi();
+
+		const title = globals.currentTitle;
+
+		/** @type {PTBody} */
+		const body = {
+			name: title,
+			href: window.location.href,
+		};
+
+		const bookmarks = await query({ input, headers: noBodyHeaders }, title);
+
+		if (bookmarks.length === 0) {
+			await create({ input, headers: bodyHeaders }, body);
+			return;
+		}
+
+		if (bookmarks.length === 1) {
+			if (chapter) {
+				const id = bookmarks[0].id;
+				await remove({ input, headers: bodyHeaders }, id);
+			}
+		} else {
+			console.error('Multiple bookmarks found for title.');
+
+			const bookmark = bookmarks.find((b) => b.name === title);
+
+			if (bookmark === undefined) {
+				console.error('No bookmark found for title.');
+				return;
+			}
+
+			if (chapter) {
+				const id = bookmark.id;
+				await remove({ input, headers: bodyHeaders }, id);
+			}
+		}
+	}
+
+	async function updateOrAddMangaToProgressTracker() {
+		const chapter = atChapter();
+		const manga = atManga();
+		const chapterOrManga = chapter || manga;
+
+		if (!chapterOrManga) {
+			return;
+		}
+
+		if (globals.ptApi.url === '' || globals.ptApi.bearerToken === '') {
+			console.warn('Progress Tracker API URL and Bearer Token must be set.');
+			return;
+		}
+
+		const { baseUrl, input, bearerToken, noBodyHeaders, bodyHeaders } = getProgressTrackerApi();
+
+		const title = globals.currentTitle;
+
+		/** @type {PTBody} */
+		const body = {
+			name: title,
+			href: window.location.href,
+		};
+
+		const bookmarks = await query({ input, headers: noBodyHeaders }, title);
+
+		if (bookmarks.length === 0) {
+			await create({ input, headers: bodyHeaders }, body);
+		} else if (bookmarks.length === 1) {
+			if (chapter) {
+				const id = bookmarks[0].id;
+				await update({ input, headers: bodyHeaders }, body, id);
+			}
+		} else {
+			console.error('Multiple bookmarks found for title.');
+
+			const bookmark = bookmarks.find((b) => b.name === title);
+
+			if (bookmark === undefined) {
+				console.error('No bookmark found for title.');
+				return;
+			}
+
+			if (chapter) {
+				const id = bookmark.id;
+				await update({ input, headers: bodyHeaders }, body, id);
+			}
+		}
+	}
 
 	/**
 	 * @param {KeyboardEvent} e
@@ -787,6 +1075,16 @@ function mangaReadingScript() {
 			return true;
 		}
 
+		if (e.code === 'BracketLeft' && shortcutHelpers.altModifier(e) && chapterOrManga) {
+			setTimeout(removeMangaFromProgressTracker, 0);
+			return true;
+		}
+
+		if (e.code === 'BracketRight' && shortcutHelpers.altModifier(e) && chapterOrManga) {
+			setTimeout(updateOrAddMangaToProgressTracker, 0);
+			return true;
+		}
+
 		return false;
 	}
 
@@ -799,7 +1097,7 @@ function mangaReadingScript() {
 	function registerKeyUps() {
 		nws.shortcut.keyUp.register('ConfigClosed', {
 			name: `${GM_info.script.name} - config closed`,
-			callback: configClosedShortcuts
+			callback: configClosedShortcuts,
 		});
 	}
 
@@ -819,6 +1117,7 @@ function mangaReadingScript() {
 		registerKeyUps();
 		setActiveSite();
 		loadTitleList();
+		loadPtApi();
 		findUrls();
 		if (atChapter()) {
 			removeMargins();

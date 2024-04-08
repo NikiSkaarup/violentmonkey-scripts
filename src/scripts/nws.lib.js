@@ -9,7 +9,7 @@ export default (() => {
 	const configGlobals = {
 		uiInitialized: false,
 		configurationWindowOpen: false,
-		debugging: false
+		debugging: false,
 	};
 
 	/** @type {stringKeyedObject} */
@@ -21,8 +21,8 @@ export default (() => {
 			data: '',
 			urls: [],
 			universal: true,
-			at: 'universal'
-		}
+			at: 'universal',
+		},
 	];
 	/** @type {Array<resource>} */
 	const jsonResources = [];
@@ -32,7 +32,7 @@ export default (() => {
 	const key = {
 		firstRun: 'firstRun',
 		debugging: 'debugging',
-		dataAttr: 'data-nws-lib'
+		dataAttr: 'data-nws-lib',
 	};
 
 	/**
@@ -58,10 +58,10 @@ export default (() => {
 			constructor() {
 				super();
 				const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(
-					frameTemplate.cloneNode(true)
+					frameTemplate.cloneNode(true),
 				);
 			}
-		}
+		},
 	);
 
 	const outerFrame = document.createElement('nws-lib-frame');
@@ -91,7 +91,7 @@ export default (() => {
 		shadowRoot,
 		frame,
 		subConfigTarget,
-		debuggingCheckbox
+		debuggingCheckbox,
 	};
 
 	/**
@@ -114,7 +114,7 @@ export default (() => {
 		registeredConfigurations[info.script.name] = {
 			name: info.script.name,
 			container,
-			callback
+			callback,
 		};
 
 		ui.subConfigTarget.appendChild(container);
@@ -332,9 +332,7 @@ export default (() => {
 	 */
 	async function loadResource(resource, resourceType) {
 		const loadResource =
-			resource.shouldLoad !== undefined
-				? resource.shouldLoad(resource)
-				: shouldLoad(resource);
+			resource.shouldLoad !== undefined ? resource.shouldLoad(resource) : shouldLoad(resource);
 
 		if (!loadResource) {
 			debug(`Skipping ${resource.name} of type: ${resourceType}...`);
@@ -376,9 +374,7 @@ export default (() => {
 	 * @param {string} name
 	 */
 	function unregisterResource(name) {
-		const index = registeredResources.findIndex(
-			(registered) => registered.resource.name === name
-		);
+		const index = registeredResources.findIndex((registered) => registered.resource.name === name);
 		if (index > -1) registeredResources.splice(index, 1);
 	}
 
@@ -401,19 +397,25 @@ export default (() => {
 
 		debug('Removing old resources...');
 
-		// @ts-ignore
-		const styles = [...document.head.querySelectorAll(`style[${key.dataAttr}]`)];
+		const styles = [
+			// @ts-ignore
+			...document.head.querySelectorAll(`style[${key.dataAttr}]`),
+		];
 		for (const el of styles) {
 			el.remove();
 		}
-		// @ts-ignore
-		const stylesInShadowroot = [...shadowRoot.querySelectorAll(`style[${key.dataAttr}]`)];
+		const stylesInShadowroot = [
+			// @ts-ignore
+			...shadowRoot.querySelectorAll(`style[${key.dataAttr}]`),
+		];
 		for (const el of stylesInShadowroot) {
 			el.remove();
 		}
 
-		// @ts-ignore
-		const scripts = [...document.body.querySelectorAll(`script[${key.dataAttr}]`)];
+		const scripts = [
+			// @ts-ignore
+			...document.body.querySelectorAll(`script[${key.dataAttr}]`),
+		];
 		for (const el of scripts) {
 			el.remove();
 		}
@@ -502,7 +504,7 @@ export default (() => {
 	 */
 	function filterRegisteredShortcut(shortcutType) {
 		return registeredKeyUpShortCuts.filter(
-			(registered) => registered.shortcutType === shortcutType
+			(registered) => registered.shortcutType === shortcutType,
 		);
 	}
 
@@ -514,7 +516,7 @@ export default (() => {
 			...filterRegisteredShortcut('Global'),
 			...(configGlobals.configurationWindowOpen
 				? filterRegisteredShortcut('ConfigOpen')
-				: filterRegisteredShortcut('ConfigClosed'))
+				: filterRegisteredShortcut('ConfigClosed')),
 		];
 
 		for (const registered of shortcuts) {
@@ -545,7 +547,7 @@ export default (() => {
 	 */
 	function unregisterKeyUp(name) {
 		const index = registeredKeyUpShortCuts.findIndex(
-			(registered) => registered.shortcut.name === name
+			(registered) => registered.shortcut.name === name,
 		);
 		if (index > -1) {
 			registeredKeyUpShortCuts.splice(index, 1);
@@ -556,15 +558,15 @@ export default (() => {
 		const namePrefix = 'nwsLib';
 		registerKeyUp('Global', {
 			name: `${namePrefix} - global`,
-			callback: globalShortcuts
+			callback: globalShortcuts,
 		});
 		registerKeyUp('ConfigOpen', {
 			name: `${namePrefix} - config open`,
-			callback: configOpenShortcuts
+			callback: configOpenShortcuts,
 		});
 		registerKeyUp('ConfigClosed', {
 			name: `${namePrefix} - config closed`,
-			callback: configClosedShortcuts
+			callback: configClosedShortcuts,
 		});
 	}
 
@@ -612,29 +614,29 @@ export default (() => {
 		config: {
 			register: registerConfig,
 			unregister: unregisterConfig,
-			isOpen: () => configGlobals.configurationWindowOpen
+			isOpen: () => configGlobals.configurationWindowOpen,
 		},
 		resources: {
 			register: registerResource,
-			unregister: unregisterResource
+			unregister: unregisterResource,
 		},
 		shortcut: {
 			keyUp: {
 				register: registerKeyUp,
-				unregister: unregisterKeyUp
+				unregister: unregisterKeyUp,
 			},
 			helpers: {
 				noModifier,
 				shiftModifier,
 				ctrlModifier,
-				altModifier
-			}
+				altModifier,
+			},
 		},
 		createHTMLElement,
 		outerFrame,
 		shadowRoot,
 		frame,
 		debug: externalDebug,
-		init
+		init,
 	};
 })();
