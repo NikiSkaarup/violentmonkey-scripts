@@ -585,8 +585,8 @@ export default (() => {
 			attachFocusEvent();
 			attachShortcutEvents();
 			console.log(`NWS - lib - ${GM_info.script.name} - Loaded.`);
-			await callback();
 			await loadResources();
+			await callback();
 		} catch (e) {
 			console.log('NWS - lib - Error:', e);
 		}

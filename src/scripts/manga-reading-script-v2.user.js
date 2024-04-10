@@ -45,6 +45,12 @@
 
 // @ts-ignore
 import mangaReadingConfig from '../templates/manga-reading-config.html';
+// @ts-ignore
+import mangaReadingNotificationButton from '../templates/manga-reading-notification-button.html';
+// @ts-ignore
+import mangaReadingNotificationContainer from '../templates/manga-reading-notification-container.html';
+// @ts-ignore
+import mangaReadingNotification from '../templates/manga-reading-notification.html';
 import nws from './nws.lib.js';
 
 function mangaReadingScript() {
@@ -235,6 +241,55 @@ function mangaReadingScript() {
 		dataAttr: 'data-nws-manga-reading-script',
 		ptAPi: 'ptApi',
 	};
+
+	const containerTemplate = document.createElement('section');
+	containerTemplate.innerHTML = mangaReadingNotificationContainer;
+	const customElementRegistry = window.customElements;
+	customElementRegistry.define(
+		'mrs-notification-container',
+		class extends HTMLElement {
+			constructor() {
+				super();
+				const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(
+					containerTemplate.cloneNode(true),
+				);
+			}
+		},
+	);
+	const outerFrame = document.createElement('mrs-notification-container');
+	const shadowRoot = /** @type {ShadowRoot} */ (outerFrame.shadowRoot);
+	const container = /** @type {HTMLDivElement} */ (shadowRoot.children[0]);
+	const notificationList = /** @type {HTMLOListElement} */ (container.querySelector('ol'));
+
+	notificationList.style.setProperty('--offset', '32px');
+	notificationList.style.setProperty('--width', '356px');
+	notificationList.style.setProperty('--gap', '14px');
+	notificationList.style.setProperty('--border-radius', '8px');
+	notificationList.style.setProperty('--z-index', '999999999');
+
+	function initToastContainer() {
+		debug('Initializing Toast Container.');
+		for (let i = 0; i < nws.shadowRoot.children.length; i++) {
+			const element = nws.shadowRoot.children[i];
+			if (element.tagName.toLowerCase() === 'style') {
+				shadowRoot.appendChild(element.cloneNode(true));
+			}
+		}
+		debug('Initialized Toast Container.');
+	}
+
+	function insertToastContainer() {
+		debug('Inserting Toast Container.');
+		document.body.appendChild(outerFrame);
+		debug('Inserted Toast Container.');
+	}
+
+	const notificationTemp = document.createElement('div');
+	notificationTemp.innerHTML = mangaReadingNotification;
+	const notificationElement = /** @type {HTMLDivElement} */ (notificationTemp.children[0]);
+	const notificationButtonTemp = document.createElement('div');
+	notificationButtonTemp.innerHTML = mangaReadingNotificationButton;
+	const notificationButton = /** @type {HTMLDivElement} */ (notificationButtonTemp.children[0]);
 
 	const temp = document.createElement('div');
 	temp.innerHTML = mangaReadingConfig;
@@ -854,6 +909,83 @@ function mangaReadingScript() {
 		return { baseUrl, input, bearerToken, noBodyHeaders, bodyHeaders };
 	}
 
+	/**
+	 * @returns {HTMLLIElement}
+	 */
+	function getNotificationElement() {
+		return /** @type {any} */ (notificationElement.cloneNode(true));
+	}
+
+	/** @typedef {{text: string; onclick?: () => (Promise<void> | void); dismiss?: boolean;}} NotificationButton */
+
+	/**
+	 * @param {NotificationButton} options
+	 * @returns {HTMLButtonElement}
+	 */
+	function getNotificationButtonElement(options) {
+		const button = /** @type {HTMLButtonElement} */ (notificationButton.cloneNode(true));
+
+		button.innerText = options.text;
+		if (options.onclick) {
+			button.onclick = options.onclick;
+		}
+
+		return button;
+	}
+
+	/** @typedef {{title: string; description?: string; autoDismiss?: boolean; buttons?: Array<NotificationButton>}} NotificationOptions */
+
+	/**
+	 * @param {NotificationOptions} options
+	 */
+	function htmlNotification(options) {
+		const notification = getNotificationElement();
+
+		/** @type {HTMLDivElement | null} */
+		const title = notification.querySelector('[data-title]');
+		/** @type {HTMLDivElement | null} */
+		const description = notification.querySelector('[data-description]');
+		/** @type {HTMLDivElement | null} */
+		const content = notification.querySelector('[data-content]');
+
+		if (title === null || description === null || content === null) {
+			console.error('Notification elements not found.');
+			return;
+		}
+
+		title.innerText = options.title;
+		description.innerText = options.description ?? '';
+
+		if (Array.isArray(options.buttons)) {
+			for (const button of options.buttons) {
+				const btn = getNotificationButtonElement(button);
+				if (button.dismiss) {
+					btn.onclick = () => {
+						notification.remove();
+						if (button.onclick) {
+							button.onclick();
+						}
+					};
+				}
+				content.appendChild(btn);
+			}
+		}
+
+		notificationList.appendChild(notification);
+
+		if (options.autoDismiss === undefined || options.autoDismiss) {
+			setTimeout(() => notification.remove(), 2500);
+		}
+	}
+
+	/**
+	 * @param {NotificationOptions} options
+	 */
+	function triggerNotification(options) {
+		debug(options);
+		setTimeout(htmlNotification, 0, options);
+	}
+
 	async function removeMangaFromProgressTracker() {
 		const chapter = atChapter();
 		const manga = atManga();
@@ -864,24 +996,20 @@ function mangaReadingScript() {
 		}
 
 		if (globals.ptApi.url === '' || globals.ptApi.bearerToken === '') {
-			console.warn('Progress Tracker API URL and Bearer Token must be set.');
+			triggerNotification({
+				title: 'Configuration Error',
+				description: 'Progress Tracker API URL and Bearer Token must be set.',
+			});
 			return;
 		}
 
-		const { baseUrl, input, bearerToken, noBodyHeaders, bodyHeaders } = getProgressTrackerApi();
+		const { input, noBodyHeaders, bodyHeaders } = getProgressTrackerApi();
 
 		const title = globals.currentTitle;
-
-		/** @type {PTBody} */
-		const body = {
-			name: title,
-			href: window.location.href,
-		};
 
 		const bookmarks = await query({ input, headers: noBodyHeaders }, title);
 
 		if (bookmarks.length === 0) {
-			await create({ input, headers: bodyHeaders }, body);
 			return;
 		}
 
@@ -889,20 +1017,29 @@ function mangaReadingScript() {
 			if (chapter) {
 				const id = bookmarks[0].id;
 				await remove({ input, headers: bodyHeaders }, id);
+				triggerNotification({
+					title: 'Bookmark Removed',
+					description: title,
+				});
 			}
 		} else {
-			console.error('Multiple bookmarks found for title.');
-
 			const bookmark = bookmarks.find((b) => b.name === title);
 
 			if (bookmark === undefined) {
-				console.error('No bookmark found for title.');
+				triggerNotification({
+					title: 'No bookmark found for title.',
+					description: title,
+				});
 				return;
 			}
 
 			if (chapter) {
 				const id = bookmark.id;
 				await remove({ input, headers: bodyHeaders }, id);
+				triggerNotification({
+					title: 'Bookmark Removed',
+					description: title,
+				});
 			}
 		}
 	}
@@ -917,11 +1054,14 @@ function mangaReadingScript() {
 		}
 
 		if (globals.ptApi.url === '' || globals.ptApi.bearerToken === '') {
-			console.warn('Progress Tracker API URL and Bearer Token must be set.');
+			triggerNotification({
+				title: 'Configuration Error',
+				description: 'Progress Tracker API URL and Bearer Token must be set.',
+			});
 			return;
 		}
 
-		const { baseUrl, input, bearerToken, noBodyHeaders, bodyHeaders } = getProgressTrackerApi();
+		const { input, noBodyHeaders, bodyHeaders } = getProgressTrackerApi();
 
 		const title = globals.currentTitle;
 
@@ -935,24 +1075,37 @@ function mangaReadingScript() {
 
 		if (bookmarks.length === 0) {
 			await create({ input, headers: bodyHeaders }, body);
+			triggerNotification({
+				title: 'Bookmark created',
+				description: title,
+			});
 		} else if (bookmarks.length === 1) {
 			if (chapter) {
 				const id = bookmarks[0].id;
 				await update({ input, headers: bodyHeaders }, body, id);
+				triggerNotification({
+					title: 'Bookmark updated',
+					description: title,
+				});
 			}
 		} else {
-			console.error('Multiple bookmarks found for title.');
-
 			const bookmark = bookmarks.find((b) => b.name === title);
 
 			if (bookmark === undefined) {
-				console.error('No bookmark found for title.');
+				triggerNotification({
+					title: 'Bookmark not found',
+					description: title,
+				});
 				return;
 			}
 
 			if (chapter) {
 				const id = bookmark.id;
 				await update({ input, headers: bodyHeaders }, body, id);
+				triggerNotification({
+					title: 'Bookmark updated',
+					description: title,
+				});
 			}
 		}
 	}
@@ -1123,6 +1276,8 @@ function mangaReadingScript() {
 			removeMargins();
 		}
 		siteOverrides();
+		initToastContainer();
+		insertToastContainer();
 		console.log(`NWS - ${GM_info.script.name} - Loaded.`);
 	}
 

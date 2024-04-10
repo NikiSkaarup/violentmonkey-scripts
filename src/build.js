@@ -40,6 +40,14 @@ await $`cp ./styles/*.css ./build/`;
 await $`bunx @tailwindcss/cli@next --optimize -i src/styles/nws-lib.css -o build/nws-lib.css`;
 await $`bunx @tailwindcss/cli@next --optimize -i src/styles/manga-reading-script.css -o build/manga-reading-script.css`;
 
+const nwsLibFile = Bun.file('./build/nws-lib.css');
+const nwsLibBuilt = await nwsLibFile.text();
+nwsLibFile.writer().write(nwsLibBuilt.replaceAll(':root', ':root, :host'));
+
+const mrsFile = Bun.file('./build/manga-reading-script.css');
+const mrsBuilt = await mrsFile.text();
+mrsFile.writer().write(mrsBuilt.replaceAll(':root', ':root, :host'));
+
 const userScripts = new Glob('./src/**/*.user.js').scan('.');
 
 for await (const userScript of userScripts) {
@@ -58,7 +66,7 @@ for await (const userScript of userScripts) {
 		outdir: './build',
 		target: 'browser',
 		minify: false,
-		loader: { '.html': 'text' }
+		loader: { '.html': 'text' },
 	});
 
 	if (!buildResult.success) {
