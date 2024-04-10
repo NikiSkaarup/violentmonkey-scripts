@@ -1276,14 +1276,18 @@ function mangaReadingScript() {
 			removeMargins();
 		}
 		siteOverrides();
+		console.log(`NWS - ${GM_info.script.name} - Loaded.`);
+	}
+	async function postInit() {
+		console.log(`NWS - ${GM_info.script.name} - Post Loading...`);
 		initToastContainer();
 		insertToastContainer();
-		console.log(`NWS - ${GM_info.script.name} - Loaded.`);
+		console.log(`NWS - ${GM_info.script.name} - Post Loaded.`);
 	}
 
 	registerConfig();
 	registerResources();
-	nws.init(onInit);
+	nws.init(onInit, postInit);
 }
 
 mangaReadingScript();

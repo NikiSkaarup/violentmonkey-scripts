@@ -572,8 +572,9 @@ export default (() => {
 
 	/**
 	 * @param {() => Promise<void>} callback
+	 * @param {() => Promise<void> | undefined} [postCallback=undefined]
 	 */
-	async function onInit(callback) {
+	async function onInit(callback, postCallback = undefined) {
 		try {
 			setDebugging(GM_getValue(key.debugging, false));
 			console.log(`NWS - lib - ${GM_info.script.name} - Loading...`);
@@ -585,8 +586,11 @@ export default (() => {
 			attachFocusEvent();
 			attachShortcutEvents();
 			console.log(`NWS - lib - ${GM_info.script.name} - Loaded.`);
-			await loadResources();
 			await callback();
+			await loadResources();
+			if (postCallback !== undefined) {
+				await postCallback();
+			}
 		} catch (e) {
 			console.log('NWS - lib - Error:', e);
 		}
@@ -594,18 +598,19 @@ export default (() => {
 
 	/**
 	 * @param {() => Promise<void>} callback
+	 * @param {() => Promise<void> | undefined} [postCallback=undefined]
 	 */
-	async function init(callback) {
+	async function init(callback, postCallback = undefined) {
 		console.log('NWS - lib - Initializing...');
 		switch (document.readyState) {
 			case 'complete':
-				await onInit(callback);
+				await onInit(callback, postCallback);
 				break;
 			case 'interactive':
-				await onInit(callback);
+				await onInit(callback, postCallback);
 				break;
 			case 'loading':
-				setTimeout(init, 10, callback);
+				setTimeout(init, 10, callback, postCallback);
 				break;
 		}
 	}
