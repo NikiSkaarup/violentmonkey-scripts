@@ -811,15 +811,14 @@ function mangaReadingScript() {
 	/**
 	 * @param {Options} options
 	 * @param {PTBody} body
-	 * @param {number} id
 	 */
-	async function update(options, body, id) {
+	async function createOrUpdate(options, body) {
 		try {
 			// signal
 			const controller = new AbortController();
 			const timer = setTimeout(() => controller.abort(), 5000);
 
-			const response = await fetch(`${options.input}/${id}`, {
+			const response = await fetch(`${options.input}`, {
 				method: 'PUT',
 				body: JSON.stringify(body),
 				headers: options.headers,
@@ -827,13 +826,22 @@ function mangaReadingScript() {
 			clearTimeout(timer);
 
 			if (!response.ok) {
-				console.error('Failed to update bookmark');
-				return false;
+				console.error('Failed to create or update bookmark');
+				return { success: false, created: false };
 			}
-			return true;
+
+			try {
+				/** @type {{success:boolean; created:boolean;}} */
+				const json = await response.json();
+				json.success = true;
+				return json;
+			} catch (e) {
+				console.error('Failed to parse response');
+				return { success: false, created: false };
+			}
 		} catch (e) {
-			console.error('Failed to update bookmarks');
-			return false;
+			console.error('Failed to create or update bookmarks');
+			return { success: false, created: false };
 		}
 	}
 
@@ -861,34 +869,6 @@ function mangaReadingScript() {
 			return true;
 		} catch (e) {
 			console.error('Failed to check bookmark');
-			return false;
-		}
-	}
-
-	/**
-	 * @param {Options} options
-	 * @param {PTBody} body
-	 */
-	async function create(options, body) {
-		try {
-			// signal
-			const controller = new AbortController();
-			const timer = setTimeout(() => controller.abort(), 5000);
-
-			const response = await fetch(options.input, {
-				method: 'POST',
-				body: JSON.stringify(body),
-				headers: options.headers,
-			});
-			clearTimeout(timer);
-
-			if (!response.ok) {
-				console.error('Failed to create bookmark');
-				return false;
-			}
-			return true;
-		} catch (e) {
-			console.error('Failed to create bookmarks');
 			return false;
 		}
 	}
@@ -1061,52 +1041,31 @@ function mangaReadingScript() {
 			return;
 		}
 
-		const { input, noBodyHeaders, bodyHeaders } = getProgressTrackerApi();
-
+		const { input, bodyHeaders } = getProgressTrackerApi();
 		const title = globals.currentTitle;
 
 		/** @type {PTBody} */
 		const body = {
-			name: title,
+			name: title.trim().toLocaleLowerCase(),
 			href: window.location.href,
 		};
 
-		const bookmarks = await query({ input, headers: noBodyHeaders }, title);
+		const result = await createOrUpdate({ input, headers: bodyHeaders }, body);
 
-		if (bookmarks.length === 0) {
-			await create({ input, headers: bodyHeaders }, body);
+		if (!result.success) {
+			return;
+		}
+
+		if (result.created) {
 			triggerNotification({
 				title: 'Bookmark created',
 				description: title,
 			});
-		} else if (bookmarks.length === 1) {
-			if (chapter) {
-				const id = bookmarks[0].id;
-				await update({ input, headers: bodyHeaders }, body, id);
-				triggerNotification({
-					title: 'Bookmark updated',
-					description: title,
-				});
-			}
 		} else {
-			const bookmark = bookmarks.find((b) => b.name === title);
-
-			if (bookmark === undefined) {
-				triggerNotification({
-					title: 'Bookmark not found',
-					description: title,
-				});
-				return;
-			}
-
-			if (chapter) {
-				const id = bookmark.id;
-				await update({ input, headers: bodyHeaders }, body, id);
-				triggerNotification({
-					title: 'Bookmark updated',
-					description: title,
-				});
-			}
+			triggerNotification({
+				title: 'Bookmark updated',
+				description: title,
+			});
 		}
 	}
 
