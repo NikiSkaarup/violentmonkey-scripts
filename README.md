@@ -33,3 +33,7 @@ bun run start
 
 - [nws lib](src/scripts/nws.lib.js), used by other scripts for configuration UI in a web component for style isolation and initialization.
 - [manga reading script](src/scripts/manga-reading-script.user.js)
+
+## TODO:
+
+- Replace elysia with bun serve since there isn't any point in having an extra dependency with such a simple usage of it.

@@ -17,17 +17,17 @@
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
     "@types/bun": "latest",
-    "eslint": "^9.6.0",
+    "eslint": "^9.9.1",
     "eslint-config-greasemonkey": "^1.0.1",
     "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.3.2",
-    "prettier-plugin-tailwindcss": "^0.6.5",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.6",
     "tailwindcss": "4.0.0-alpha.16",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "@tailwindcss/cli": "4.0.0-alpha.16",
-    "elysia": "^1.0.26"
+    "elysia": "^1.1.7"
   },
   "trustedDependencies": [
     "@biomejs/biome"
