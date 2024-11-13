@@ -164,8 +164,8 @@ export default (() => {
 	/**
 	 * @param {boolean} value
 	 */
-	function setDebugging(value) {
-		GM_setValue(key.debugging, value);
+	async function setDebugging(value) {
+		await GM.setValue(key.debugging, value);
 		configGlobals.debugging = value;
 		console.log('NWS - lib - Debugging set to:', value);
 	}
@@ -456,9 +456,9 @@ export default (() => {
 
 	/**
 	 * @param {KeyboardEvent} event
-	 * @returns {boolean}
+	 * @returns {Promise<boolean>}
 	 */
-	function globalShortcuts(event) {
+	async function globalShortcuts(event) {
 		switch (true) {
 			case event.code === 'Backslash' && ctrlModifier(event):
 				setDebugging(!configGlobals.debugging);
@@ -473,9 +473,9 @@ export default (() => {
 
 	/**
 	 * @param {KeyboardEvent} event
-	 * @returns {boolean}
+	 * @returns {Promise<boolean>}
 	 */
-	function configOpenShortcuts(event) {
+	async function configOpenShortcuts(event) {
 		if (event.code === 'Escape' && noModifier(event)) {
 			closeConfig();
 			return true;
@@ -485,9 +485,9 @@ export default (() => {
 
 	/**
 	 * @param {KeyboardEvent} event
-	 * @returns {boolean}
+	 * @returns {Promise<boolean>}
 	 */
-	function configClosedShortcuts(event) {
+	async function configClosedShortcuts(event) {
 		if (event.code === 'Slash' && ctrlModifier(event)) {
 			openConfig();
 			return true;
@@ -511,7 +511,7 @@ export default (() => {
 	/**
 	 * @param {KeyboardEvent} event
 	 */
-	function keyupEventListener(event) {
+	async function keyupEventListener(event) {
 		const shortcuts = [
 			...filterRegisteredShortcut('Global'),
 			...(configGlobals.configurationWindowOpen
@@ -520,7 +520,7 @@ export default (() => {
 		];
 
 		for (const registered of shortcuts) {
-			if (registered.shortcut.callback(event)) {
+			if (await registered.shortcut.callback(event)) {
 				return;
 			}
 		}
@@ -576,16 +576,16 @@ export default (() => {
 	 */
 	async function onInit(callback, postCallback = undefined) {
 		try {
-			setDebugging(GM_getValue(key.debugging, false));
-			console.log(`NWS - lib - ${GM_info.script.name} - Loading...`);
-			GM_registerMenuCommand(`Configure ${GM_info.script.name}`, () => {
+			await setDebugging(await GM.getValue(key.debugging, false));
+			console.log(`NWS - lib - ${GM.info.script.name} - Loading...`);
+			const id = GM.registerMenuCommand(`Configure ${GM.info.script.name}`, () => {
 				openConfig();
 			});
 			registerKeyUps();
 			registerResources();
 			attachFocusEvent();
 			attachShortcutEvents();
-			console.log(`NWS - lib - ${GM_info.script.name} - Loaded.`);
+			console.log(`NWS - lib - ${GM.info.script.name} - Loaded.`);
 			await callback();
 			await loadResources();
 			if (postCallback !== undefined) {

@@ -12,13 +12,14 @@
 // @version     1.0
 // @author      nws
 // @description Nyaa.si features
-// @grant       GM_info
-// @grant       GM_setValue
-// @grant       GM_getValue
+// @grant       GM.info
+// @grant       GM.setValue
+// @grant       GM.getValue
 // @grant       GM_getResourceText
-// @grant       GM_registerMenuCommand
-// @grant       GM_notification
-// @grant       GM_openInTab
+// @grant       GM.registerMenuCommand
+// @grant       GM.notification
+// @grant       GM.openInTab
+// @grant       GM.info
 // @inject-into content
 // @run-at      document-start
 // @noframes
@@ -32,7 +33,7 @@ function initScript() {
 	 * @param {unknown} message
 	 */
 	function debug(message) {
-		nws.debug(message, GM_info.script.name);
+		nws.debug(message, GM.info.script.name);
 	}
 
 	/** @type {Array<manga_reading.resourceType>} */
@@ -43,8 +44,8 @@ function initScript() {
 			urls: ['https://nyaa.si'],
 			at: 'site',
 			site: 'global',
-			shouldLoad: () => true
-		}
+			shouldLoad: () => true,
+		},
 	];
 	/** @type {Array<manga_reading.resourceType>} */
 	const jsonResources = [];
@@ -53,7 +54,7 @@ function initScript() {
 
 	const key = {
 		firstRun: 'firstRun',
-		dataAttr: 'data-nws-nyaa-si-script'
+		dataAttr: 'data-nws-nyaa-si-script',
 	};
 
 	/**
@@ -70,10 +71,10 @@ function initScript() {
 		const title = /** @type {HTMLParagraphElement} */ (
 			nws.createHTMLElement('p', 'nws-current-title nws-border-bottom')
 		);
-		title.innerText = `${GM_info.script.name} version ${GM_info.script.version} configuration`;
+		title.innerText = `${GM.info.script.name} version ${GM.info.script.version} configuration`;
 		subContainer.appendChild(title);
 
-		nws.config.register(GM_info, subContainer, () => {
+		nws.config.register(GM.info, subContainer, () => {
 			// callback!
 		});
 	}
@@ -93,7 +94,7 @@ function initScript() {
 	const getFirstRow = () => {
 		const rows = /** @type {NodeListOf<HTMLTableRowElement>} */ (
 			document.querySelectorAll(
-				'table.table.table-bordered.table-hover.table-striped.torrent-list > tbody > tr'
+				'table.table.table-bordered.table-hover.table-striped.torrent-list > tbody > tr',
 			)
 		);
 		return rows[0];
@@ -121,7 +122,7 @@ function initScript() {
 		row.classList.add('nws-selected-row');
 		row.scrollIntoView({
 			behavior: 'smooth',
-			block: 'center'
+			block: 'center',
 		});
 		window.getSelection()?.removeAllRanges();
 		return row;
@@ -129,9 +130,9 @@ function initScript() {
 
 	/**
 	 * @param {KeyboardEvent} e
-	 * @returns {boolean}
+	 * @returns {Promise<boolean>}
 	 */
-	function configClosedShortcuts(e) {
+	async function configClosedShortcuts(e) {
 		switch (true) {
 			case e.code === 'ArrowLeft' && shortcutHelpers.shiftModifier(e):
 				e.preventDefault();
@@ -143,7 +144,7 @@ function initScript() {
 					setLocation(
 						/** @type {HTMLAnchorElement} */ (
 							document.querySelector('nav > ul.pagination > li:first-child > a')
-						).href
+						).href,
 					);
 				}
 				debug('ArrowLeft');
@@ -158,7 +159,7 @@ function initScript() {
 					setLocation(
 						/** @type {HTMLAnchorElement} */ (
 							document.querySelector('nav > ul.pagination > li:last-child > a')
-						).href
+						).href,
 					);
 				}
 				debug('ArrowRight');
@@ -189,10 +190,10 @@ function initScript() {
 	};
 
 	const registerKeyUps = () => {
-		const namePrefix = GM_info.script.name;
+		const namePrefix = GM.info.script.name;
 		nws.shortcut.keyUp.register('ConfigClosed', {
 			name: `${namePrefix} - config closed`,
-			callback: configClosedShortcuts
+			callback: configClosedShortcuts,
 		});
 	};
 
@@ -204,17 +205,17 @@ function initScript() {
 			debug('First run detected.');
 			GM_setValue(key.firstRun, false);
 
-			GM_notification('First run setup complete', `NWS - ${GM_info.script.name}`);
+			GM_notification('First run setup complete', `NWS - ${GM.info.script.name}`);
 		}
 		debug('First run checked.');
 	};
 
 	const onInit = async () => {
-		console.log(`NWS - ${GM_info.script.name} - Loading...`);
+		console.log(`NWS - ${GM.info.script.name} - Loading...`);
 		checkFirstRun();
 		registerKeyUps();
 		siteOverrides();
-		console.log(`NWS - ${GM_info.script.name} - Loaded.`);
+		console.log(`NWS - ${GM.info.script.name} - Loaded.`);
 	};
 
 	registerConfig();

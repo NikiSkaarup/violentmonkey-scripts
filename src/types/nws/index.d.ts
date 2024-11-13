@@ -31,7 +31,7 @@ type stringKeyedObject = { [key: string]: string };
 
 type shortcutType = 'Global' | 'ConfigOpen' | 'ConfigClosed';
 
-type shortcutCallback = (event: KeyboardEvent) => boolean;
+type shortcutCallback = (event: KeyboardEvent) => Promise<boolean>;
 
 type shortcut = {
 	name: string;

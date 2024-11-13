@@ -22,15 +22,17 @@
 // @version     2.0
 // @author      nws
 // @description Adds nearly complete keyboard navigation and cleans up the user interface of manganato
-// @grant       GM_info
-// @grant       GM_setValue
-// @grant       GM_getValue
+// @grant       GM.info
+// @grant       GM.setValue
+// @grant       GM.getValue
 // @grant       GM_getResourceText
-// @grant       GM_registerMenuCommand
-// @grant       GM_notification
-// @grant       GM_openInTab
+// @grant       GM.registerMenuCommand
+// @grant       GM.notification
+// @grant       GM.openInTab
+// @grant       GM.xmlHttpRequest
 // @inject-into content
 // @run-at      document-start
+// @top-level-await
 // @noframes
 // #@unwrap
 // ==/UserScript==
@@ -59,7 +61,7 @@ function mangaReadingScript() {
 	 * @param {unknown} message
 	 */
 	function debug(message) {
-		nws.debug(message, GM_info.script.name);
+		nws.debug(message, GM.info.script.name);
 	}
 
 	/** @type {manga_reading.globalsType} */
@@ -445,7 +447,7 @@ function mangaReadingScript() {
 			savePtApi();
 		};
 
-		nws.config.register(GM_info, configElement, () => {
+		nws.config.register(GM.info, configElement, () => {
 			setTitleList();
 			setPTUi();
 			ui.btnRemove.disabled = atNeither();
@@ -465,19 +467,19 @@ function mangaReadingScript() {
 		ui.titleList.value = curTAVal + globals.currentTitle;
 	}
 
-	function saveTitles() {
+	async function saveTitles() {
 		globals.titleList = [...new Set(ui.titleList.value.trim().split(/\r?\n/).sort())];
-		GM_setValue(key.titleList, JSON.stringify(globals.titleList));
+		await GM.setValue(key.titleList, JSON.stringify(globals.titleList));
 
 		if (atChapter()) {
 			removeMargins();
 		}
 	}
 
-	function savePtApi() {
+	async function savePtApi() {
 		globals.ptApi.url = ui.ptApiUrl.value.trim();
 		globals.ptApi.bearerToken = ui.ptApiBearerToken.value.trim();
-		GM_setValue(key.ptAPi, JSON.stringify(globals.ptApi));
+		await GM.setValue(key.ptAPi, JSON.stringify(globals.ptApi));
 	}
 
 	function removeTitle() {
@@ -571,20 +573,20 @@ function mangaReadingScript() {
 		debug('Found URLs.');
 	}
 
-	function loadTitleList() {
+	async function loadTitleList() {
 		debug('Loading title list...');
 
-		globals.titleList = JSON.parse(GM_getValue(key.titleList, JSON.stringify(defaults.titleList)));
+		const value = await GM.getValue(key.titleList, JSON.stringify(defaults.titleList));
+		globals.titleList = JSON.parse(value);
 
 		debug('Loaded title list.');
 	}
 
-	function loadPtApi() {
+	async function loadPtApi() {
 		debug('Loading progress tracker api...');
 
-		globals.ptApi = JSON.parse(
-			GM_getValue(key.ptAPi, JSON.stringify({ url: '', bearerToken: '' })),
-		);
+		const value = await GM.getValue(key.ptAPi, JSON.stringify({ url: '', bearerToken: '' }));
+		globals.ptApi = JSON.parse(value);
 
 		debug('Loaded progress tracker api.');
 	}
@@ -701,7 +703,7 @@ function mangaReadingScript() {
 		);
 
 		if (anchor) {
-			GM_openInTab(anchor.href, { active: false, insert: true });
+			GM.openInTab(anchor.href, { active: false, insert: true });
 		}
 	}
 
@@ -744,6 +746,74 @@ function mangaReadingScript() {
 		window.getSelection()?.removeAllRanges();
 	}
 
+	/**
+	 * @param {string} headersString
+	 * @returns {Headers}
+	 */
+	function parseHeaders(headersString) {
+		const headers = new Headers();
+		const arr = headersString.trim().split('\n');
+		for (const header of arr) {
+			const [key, value] = header.split(':');
+			headers.append(key, value);
+		}
+		return headers;
+	}
+
+	/**
+	 * @param {string | URL | globalThis.Request} input
+	 * @param {RequestInit | undefined} init
+	 */
+	async function nwsFetch(input, init = undefined) {
+		const method = init?.method ?? 'GET';
+		if (init?.headers !== undefined && init.headers instanceof Headers) {
+			init.headers.set('Content-Type', 'application/json');
+		}
+
+		/** @type {{[key: string]: string}} */
+		const headers = {};
+
+		if (init?.headers !== undefined) {
+			if (init.headers instanceof Headers) {
+				init.headers.forEach((value, key) => {
+					headers[key.toLowerCase()] = value;
+				});
+			} else if (typeof init.headers === 'object') {
+				for (const [key, value] of Object.entries(init.headers)) {
+					headers[key.toLowerCase()] = value;
+				}
+			}
+		}
+		if (method !== 'GET') {
+			headers['content-type'] = 'application/json';
+		}
+
+		const data = init?.body ?? undefined;
+
+		console.log(data);
+
+		const resp = await GM.xmlHttpRequest({
+			url: input.toString(),
+			method,
+			headers,
+			overrideMimeType: 'application/json',
+			timeout: 5000,
+			responseType: 'json',
+			anonymous: true,
+			data,
+		});
+
+		console.log(resp);
+
+		const respHeaders = parseHeaders(resp.responseHeaders);
+
+		return new Response(resp.responseText, {
+			status: resp.status,
+			statusText: resp.statusText,
+			headers: respHeaders,
+		});
+	}
+
 	const shortcutHelpers = nws.shortcut.helpers;
 
 	/** @typedef {{input: string; headers: HeadersInit}} Options */
@@ -756,18 +826,11 @@ function mangaReadingScript() {
 	 */
 	async function query(options, q = undefined) {
 		try {
-			// signal
-			const controller = new AbortController();
-			const timer = setTimeout(() => controller.abort(), 5000);
-
 			const input = q !== undefined ? `${options.input}?q=${q}` : options.input;
-			const response = await fetch(input, {
+			const response = await nwsFetch(input, {
 				method: 'GET',
-				signal: controller.signal,
 				headers: options.headers,
 			});
-
-			clearTimeout(timer);
 
 			if (!response.ok) {
 				console.error('Failed to fetch bookmarks');
@@ -777,6 +840,7 @@ function mangaReadingScript() {
 			return response.json();
 		} catch (e) {
 			console.error('Failed to fetch bookmarks');
+			console.error(e);
 			return [];
 		}
 	}
@@ -787,15 +851,10 @@ function mangaReadingScript() {
 	 */
 	async function remove(options, id) {
 		try {
-			// signal
-			const controller = new AbortController();
-			const timer = setTimeout(() => controller.abort(), 5000);
-
-			const response = await fetch(`${options.input}/${id}`, {
+			const response = await nwsFetch(`${options.input}/${id}`, {
 				method: 'DELETE',
 				headers: options.headers,
 			});
-			clearTimeout(timer);
 
 			if (!response.ok) {
 				console.error('Failed to delete bookmark');
@@ -804,6 +863,7 @@ function mangaReadingScript() {
 			return true;
 		} catch (e) {
 			console.error('Failed to delete bookmarks');
+			console.error(e);
 			return false;
 		}
 	}
@@ -814,16 +874,14 @@ function mangaReadingScript() {
 	 */
 	async function createOrUpdate(options, body) {
 		try {
-			// signal
-			const controller = new AbortController();
-			const timer = setTimeout(() => controller.abort(), 5000);
-
-			const response = await fetch(`${options.input}`, {
+			console.log('Creating or updating bookmark', options.input, body);
+			const response = await nwsFetch(options.input, {
 				method: 'PUT',
 				body: JSON.stringify(body),
 				headers: options.headers,
 			});
-			clearTimeout(timer);
+
+			console.log(response);
 
 			if (!response.ok) {
 				console.error('Failed to create or update bookmark');
@@ -837,10 +895,12 @@ function mangaReadingScript() {
 				return json;
 			} catch (e) {
 				console.error('Failed to parse response');
+				console.error(e);
 				return { success: false, created: false };
 			}
 		} catch (e) {
 			console.error('Failed to create or update bookmarks');
+			console.error(e);
 			return { success: false, created: false };
 		}
 	}
@@ -852,15 +912,10 @@ function mangaReadingScript() {
 	 */
 	async function check(options, id, finished) {
 		try {
-			// signal
-			const controller = new AbortController();
-			const timer = setTimeout(() => controller.abort(), 5000);
-
-			const response = await fetch(`${options.input}/${id}/check/${finished}`, {
+			const response = await nwsFetch(`${options.input}/${id}/check/${finished}`, {
 				method: 'PUT',
 				headers: options.headers,
 			});
-			clearTimeout(timer);
 
 			if (!response.ok) {
 				console.error('Failed to check bookmark');
@@ -869,6 +924,7 @@ function mangaReadingScript() {
 			return true;
 		} catch (e) {
 			console.error('Failed to check bookmark');
+			console.error(e);
 			return false;
 		}
 	}
@@ -1071,9 +1127,9 @@ function mangaReadingScript() {
 
 	/**
 	 * @param {KeyboardEvent} e
-	 * @returns {boolean}
+	 * @returns {Promise<boolean>}
 	 */
-	function configClosedShortcuts(e) {
+	async function configClosedShortcuts(e) {
 		const chapter = atChapter();
 		const manga = atManga();
 		const chapterOrManga = chapter || manga;
@@ -1176,14 +1232,14 @@ function mangaReadingScript() {
 		if (e.code === 'BracketLeft' && shortcutHelpers.shiftModifier(e) && chapterOrManga) {
 			setTitleList();
 			removeTitle();
-			saveTitles();
+			await saveTitles();
 			return true;
 		}
 
 		if (e.code === 'BracketRight' && shortcutHelpers.shiftModifier(e) && chapterOrManga) {
 			setTitleList();
 			addTitle();
-			saveTitles();
+			await saveTitles();
 			return true;
 		}
 
@@ -1208,24 +1264,25 @@ function mangaReadingScript() {
 
 	function registerKeyUps() {
 		nws.shortcut.keyUp.register('ConfigClosed', {
-			name: `${GM_info.script.name} - config closed`,
+			name: `${GM.info.script.name} - config closed`,
 			callback: configClosedShortcuts,
 		});
 	}
 
-	function checkFirstRun() {
+	async function checkFirstRun() {
 		debug('First run check...');
-		if (GM_getValue(key.firstRun, true)) {
+		const value = await GM.getValue(key.firstRun, true);
+		if (value) {
 			debug('First run detected.');
-			GM_setValue(key.firstRun, false);
-			GM_notification('First run setup complete', `NWS - ${GM_info.script.name}`);
+			GM.setValue(key.firstRun, false);
+			GM.notification('First run setup complete', `NWS - ${GM.info.script.name}`);
 		}
 		debug('First run checked.');
 	}
 
 	async function onInit() {
-		console.log(`NWS - ${GM_info.script.name} - Loading...`);
-		checkFirstRun();
+		console.log(`NWS - ${GM.info.script.name} - Loading...`);
+		await checkFirstRun();
 		registerKeyUps();
 		setActiveSite();
 		loadTitleList();
@@ -1235,13 +1292,13 @@ function mangaReadingScript() {
 			removeMargins();
 		}
 		siteOverrides();
-		console.log(`NWS - ${GM_info.script.name} - Loaded.`);
+		console.log(`NWS - ${GM.info.script.name} - Loaded.`);
 	}
 	async function postInit() {
-		console.log(`NWS - ${GM_info.script.name} - Post Loading...`);
+		console.log(`NWS - ${GM.info.script.name} - Post Loading...`);
 		initToastContainer();
 		insertToastContainer();
-		console.log(`NWS - ${GM_info.script.name} - Post Loaded.`);
+		console.log(`NWS - ${GM.info.script.name} - Post Loaded.`);
 	}
 
 	registerConfig();

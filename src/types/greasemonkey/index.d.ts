@@ -2,101 +2,75 @@
 // https://wiki.greasespot.net/Greasemonkey_Manual:API
 
 type gm_responseObjectType = {
-    readyState: number;
-    responseHeaders: string;
-    responseText: string;
-    status: number;
-    statusText: string;
-    context?: unknown;
-    lengthComputable?: boolean;
-    loaded?: number;
-    total?: number;
+	readyState: number;
+	responseHeaders: string;
+	responseText: string;
+	status: number;
+	statusText: string;
+	context?: unknown;
+	lengthComputable?: boolean;
+	loaded?: number;
+	total?: number;
 };
 
 type gm_detailType = {
-    binary?: boolean;
-    context?: unknown;
-    data?: string;
-    headers?: { [key: string]: string };
-    method?: string;
-    overrideMimeType?: string;
-    password?: string;
-    responseType?: string;
-    synchronous?: boolean;
-    timeout?: number;
-    upload?: {
-        onabort?: (event: gm_responseObjectType) => void;
-        onerror?: (event: gm_responseObjectType) => void;
-        onload?: (event: gm_responseObjectType) => void;
-        onprogress?: (event: gm_responseObjectType) => void;
-    };
-    url: string;
-    user?: string;
-    onabort?: (event: gm_responseObjectType) => void;
-    onerror?: (event: gm_responseObjectType) => void;
-    onload?: (event: gm_responseObjectType) => void;
-    onprogress?: (event: gm_responseObjectType) => void;
-    onreadystatechange?: (event: gm_responseObjectType) => void;
-    ontimeout?: (event: gm_responseObjectType) => void;
+	binary?: boolean;
+	context?: unknown;
+	data?: string;
+	headers?: { [key: string]: string };
+	method?: string;
+	overrideMimeType?: string;
+	password?: string;
+	responseType?: string;
+	synchronous?: boolean;
+	timeout?: number;
+	upload?: {
+		onabort?: (event: gm_responseObjectType) => void;
+		onerror?: (event: gm_responseObjectType) => void;
+		onload?: (event: gm_responseObjectType) => void;
+		onprogress?: (event: gm_responseObjectType) => void;
+	};
+	url: string;
+	user?: string;
+	onabort?: (event: gm_responseObjectType) => void;
+	onerror?: (event: gm_responseObjectType) => void;
+	onload?: (event: gm_responseObjectType) => void;
+	onprogress?: (event: gm_responseObjectType) => void;
+	onreadystatechange?: (event: gm_responseObjectType) => void;
+	ontimeout?: (event: gm_responseObjectType) => void;
 };
 
 type gm_optionType = {
-    text: string;
-    title?: string;
-    image?: string;
-    onclick?: () => void;
-    ondone?: () => void;
+	text: string;
+	title?: string;
+	image?: string;
+	onclick?: () => void;
+	ondone?: () => void;
 };
 
 type gm_resourceType = {
-    [key: string]: {
-        name: string;
-        mimetype: string;
-        url: string;
-    }
+	[key: string]: {
+		name: string;
+		mimetype: string;
+		url: string;
+	};
 };
 
 type gm_scriptType = {
-    description: string;
-    excludes: string[];
-    inlcudes: string[];
-    matches: string[];
-    name: string;
-    namespace: string;
-    resources: gm_resourceType;
-    "run-at": string;
-    version: string;
+	description: string;
+	excludes: string[];
+	includes: string[];
+	matches: string[];
+	name: string;
+	namespace: string;
+	resources: gm_resourceType;
+	'run-at': string;
+	version: string;
 };
 
 type gm_infoType = {
-    script: gm_scriptType;
-    scriptMetaStr: string;
-    scriptHandler: string;
-    version: string;
-}
-
-declare namespace GM {
-    function getValue<t>(key: string, defaultValue?: string | number | boolean): Promise<t>;
-    function getValue(key: string, defaultValue?: string | number | boolean): Promise<string>;
-
-    function setValue(key: string, value: string | number | boolean): Promise<void>;
-
-    function registerMenuCommand(caption: string, func: () => void, accessKey?: string): void;
-
-    function deleteValue(key: string): Promise<void>;
-
-    function listValues(): Promise<string[]>;
-
-    function getResourceUrl(name: string): Promise<string>;
-
-    function notification(text: string, title?: string, image?: string, onclick?: () => void): void;
-    function notification(option: gm_optionType): void;
-
-    function openInTab(url: string, open_in_background?: boolean): void;
-
-    function setClipboard(text: string): void;
-
-    function xmlHttpRequest(details: gm_detailType): void;
-
-    const info: gm_infoType;
-}
+	script: gm_scriptType;
+	scriptMetaStr: string;
+	scriptHandler: string;
+	version: string;
+};
