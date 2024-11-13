@@ -1269,8 +1269,8 @@ function mangaReadingScript() {
 		await checkFirstRun();
 		registerKeyUps();
 		setActiveSite();
-		loadTitleList();
-		loadPtApi();
+		await loadTitleList();
+		await loadPtApi();
 		findUrls();
 		if (atChapter()) {
 			removeMargins();
