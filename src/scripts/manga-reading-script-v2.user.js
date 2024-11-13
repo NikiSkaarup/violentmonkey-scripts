@@ -766,12 +766,8 @@ function mangaReadingScript() {
 	 */
 	async function nwsFetch(input, init = undefined) {
 		const method = init?.method ?? 'GET';
-		if (init?.headers !== undefined && init.headers instanceof Headers) {
-			init.headers.set('Content-Type', 'application/json');
-		}
-
 		/** @type {{[key: string]: string}} */
-		const headers = {};
+		const headers = method !== 'GET' ? { 'content-type': 'application/json' } : {};
 
 		if (init?.headers !== undefined) {
 			if (init.headers instanceof Headers) {
@@ -784,26 +780,16 @@ function mangaReadingScript() {
 				}
 			}
 		}
-		if (method !== 'GET') {
-			headers['content-type'] = 'application/json';
-		}
-
-		const data = init?.body ?? undefined;
-
-		console.log(data);
 
 		const resp = await GM.xmlHttpRequest({
 			url: input.toString(),
 			method,
 			headers,
-			overrideMimeType: 'application/json',
 			timeout: 5000,
 			responseType: 'json',
 			anonymous: true,
-			data,
+			data: init?.body ?? undefined,
 		});
-
-		console.log(resp);
 
 		const respHeaders = parseHeaders(resp.responseHeaders);
 
@@ -880,8 +866,6 @@ function mangaReadingScript() {
 				body: JSON.stringify(body),
 				headers: options.headers,
 			});
-
-			console.log(response);
 
 			if (!response.ok) {
 				console.error('Failed to create or update bookmark');
