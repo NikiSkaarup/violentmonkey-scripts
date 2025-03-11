@@ -18,3 +18,8 @@ body::before {
 	pointer-events: none;
 	backdrop-filter: contrast(1.2) brightness(0.75);
 }
+
+body .top-logo img,
+body .logo_chapter img {
+	filter: invert() hue-rotate(180deg) brightness(0.75);
+}
