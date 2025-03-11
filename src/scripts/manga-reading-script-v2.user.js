@@ -507,8 +507,6 @@ function mangaReadingScript() {
 
 		if (globals.titleList.includes(globals.currentTitle)) {
 			margin = '0 auto';
-
-			// setStyle(document.querySelectorAll('.container-chapter-reader > img'), 'display', 'none');
 		}
 
 		setStyle(document.querySelectorAll('.container-chapter-reader > img'), 'margin', margin);
