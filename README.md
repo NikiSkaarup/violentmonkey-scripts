@@ -37,3 +37,4 @@ bun run start
 ## TODO:
 
 - Replace elysia with bun serve since there isn't any point in having an extra dependency with such a simple usage of it.
+- Create docker file

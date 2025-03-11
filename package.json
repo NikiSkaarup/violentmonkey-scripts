@@ -1,35 +1,31 @@
 {
-  "name": "violentmonkey-scripts",
-  "version": "1.0.0",
-  "description": "",
-  "type": "module",
-  "module": "src/index.js",
-  "scripts": {
-    "dev": "bunx concurrently -n elysia,bundle -c cyan,magentaBright,green,blue,redBright \"bun elysia:watch\" \"bun bundle:watch\"",
-    "start": "bunx concurrently -n elysia,bundle,-c cyan,magentaBright,green,blue,redBright \"bun elysia\" \"bun bundle\"",
-    "elysia": "bun run src/index.js",
-    "elysia:watch": "bun run --watch src/index.js",
-    "bundle": "bun run src/build.js",
-    "bundle:watch": "bun run --watch src/build.js"
-  },
-  "author": "nws",
-  "license": "MIT",
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/bun": "latest",
-    "eslint": "^9.22.0",
-    "eslint-config-greasemonkey": "^1.0.1",
-    "eslint-config-prettier": "^10.1.1",
-    "prettier": "^4.0.0-alpha.12",
-    "prettier-plugin-tailwindcss": "^0.6.11",
-    "tailwindcss": "4.0.8",
-    "typescript": "^5.8.2"
-  },
-  "dependencies": {
-    "@tailwindcss/cli": "4.0.12",
-    "elysia": "^1.2.25"
-  },
-  "trustedDependencies": [
-    "@biomejs/biome"
-  ]
+	"name": "violentmonkey-scripts",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"module": "src/index.js",
+	"scripts": {
+		"dev": "bunx concurrently -n elysia,bundle -c cyan,magentaBright,green,blue,redBright \"bun elysia:watch\" \"bun bundle:watch\"",
+		"start": "bunx concurrently -n elysia,bundle,-c cyan,magentaBright,green,blue,redBright \"bun elysia\" \"bun bundle\"",
+		"elysia": "bun run src/index.js",
+		"elysia:watch": "bun run --watch src/index.js",
+		"bundle": "bun run src/build.js",
+		"bundle:watch": "bun run --watch src/build.js"
+	},
+	"author": "nws",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/bun": "latest",
+		"eslint": "^9.22.0",
+		"eslint-config-greasemonkey": "^1.0.1",
+		"eslint-config-prettier": "^10.1.1",
+		"prettier": "^4.0.0-alpha.12",
+		"prettier-plugin-tailwindcss": "^0.6.11",
+		"tailwindcss": "4.0.8",
+		"typescript": "^5.8.2"
+	},
+	"dependencies": {
+		"@tailwindcss/cli": "4.0.12",
+		"elysia": "^1.2.25"
+	}
 }
