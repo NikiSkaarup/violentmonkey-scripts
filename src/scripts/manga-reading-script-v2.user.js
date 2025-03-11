@@ -18,6 +18,10 @@
 // @match       https://chapmanganato.com/*
 // @match       https://manganato.com/*
 // @match       https://chapmanganato.to/*
+// @match       https://natomanga.com/*
+// @match       https://manganelo.com/*
+// @match       https://manganato.gg/*
+// @match       https://mangakakalot.gg/*
 // @grant       none
 // @version     2.0
 // @author      nws
@@ -253,10 +257,10 @@ function mangaReadingScript() {
 			constructor() {
 				super();
 				const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(
-					containerTemplate.cloneNode(true),
+					containerTemplate.cloneNode(true)
 				);
 			}
-		},
+		}
 	);
 	const outerFrame = document.createElement('mrs-notification-container');
 	const shadowRoot = /** @type {ShadowRoot} */ (outerFrame.shadowRoot);
