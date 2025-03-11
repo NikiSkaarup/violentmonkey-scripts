@@ -9,14 +9,10 @@ let userScripts = [];
 /** @type {Array<string>} */
 let styles = [];
 
-let lastUpdate = Date.now();
-
 async function updateFiles() {
-	if (Date.now() - lastUpdate < 1000) return;
 	files = await readdir('./build');
 	userScripts = files.filter((file) => file.endsWith('.user.js'));
 	styles = files.filter((file) => file.endsWith('.css'));
-	lastUpdate = Date.now();
 }
 
 const elysia = new Elysia()
@@ -34,8 +30,8 @@ const elysia = new Elysia()
 
 		return new Response(content, {
 			headers: {
-				'Content-Type': 'application/javascript'
-			}
+				'Content-Type': 'application/javascript',
+			},
 		});
 	})
 	.get('/styles/:style', async ({ params: { style } }) => {
@@ -51,8 +47,8 @@ const elysia = new Elysia()
 
 		return new Response(content, {
 			headers: {
-				'Content-Type': 'text/css'
-			}
+				'Content-Type': 'text/css',
+			},
 		});
 	});
 

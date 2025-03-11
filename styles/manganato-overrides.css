@@ -1,10 +1,14 @@
 body {
-  background-color: rgba(0, 0, 0, 0) !important;
-  border-color: currentcolor;
-  background-image: url("/themes/hm/images/background-black.png") !important;
-  border-top: 0px !important;
+	border-color: currentcolor;
+	background: rgba(0, 0, 0, 0) url('/images/icons/black_thread.webp') !important;
+	border-top: 0px !important;
 }
 
-body > div.body-site {
-  backdrop-filter: contrast(1.2) brightness(0.75);
+body::before {
+	inset: 0;
+	content: '';
+	position: absolute;
+	z-index: 0; /* Ensure this is below the main content */
+	pointer-events: none;
+	backdrop-filter: contrast(1.2) brightness(0.75);
 }

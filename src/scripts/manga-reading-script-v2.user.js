@@ -22,6 +22,19 @@
 // @match       https://manganelo.com/*
 // @match       https://manganato.gg/*
 // @match       https://mangakakalot.gg/*
+// @match       https://mangakakalove.com/*
+// @match       https://nelomanga.com/*
+// @match       https://www.manganelo.com/*
+// @match       https://www.readmanganato.com/*
+// @match       https://www.chapmanganato.com/*
+// @match       https://www.manganato.com/*
+// @match       https://www.chapmanganato.to/*
+// @match       https://www.natomanga.com/*
+// @match       https://www.manganelo.com/*
+// @match       https://www.manganato.gg/*
+// @match       https://www.mangakakalot.gg/*
+// @match       https://www.mangakakalove.com/*
+// @match       https://www.nelomanga.com/*
 // @grant       none
 // @version     2.0
 // @author      nws
@@ -68,60 +81,51 @@ function mangaReadingScript() {
 		nws.debug(message, GM.info.script.name);
 	}
 
+	const urls = [
+		'https://readmanganato.com',
+		'https://manganato.com',
+		'https://chapmanganato.com',
+		'https://chapmanganato.to',
+		'https://natomanga.com',
+		'https://manganelo.com',
+		'https://manganato.gg',
+		'https://mangakakalot.gg',
+		'https://mangakakalove.com',
+		'https://nelomanga.com',
+		'https://www.manganelo.com',
+		'https://www.readmanganato.com',
+		'https://www.chapmanganato.com',
+		'https://www.manganato.com',
+		'https://www.chapmanganato.to',
+		'https://www.natomanga.com',
+		'https://www.manganelo.com',
+		'https://www.manganato.gg',
+		'https://www.mangakakalot.gg',
+		'https://www.mangakakalove.com',
+		'https://www.nelomanga.com',
+	];
+
 	/** @type {manga_reading.globalsType} */
 	const globals = {
 		nextUrl: '',
 		prevUrl: '',
 		currentTitle: '',
 		uiInitialized: false,
-		currentSite: {
-			name: 'None',
-			urls: ['https://example.com'],
-			at: 'neither',
+		site: {
+			name: 'manganato',
+			urls,
 			active: false,
-			activeRegex: /(?:)/,
-			atChapterRegex: /(?:)/,
-			atMangaRegex: /(?:)/,
-			titleLinkSelector: '',
-			nextChapterSelector: '',
-			prevChapterSelector: '',
+			at: 'neither',
+			atChapterRegex: /https:\/\/.*\/manga\/[\w.\-~%]+\/chapter-[\d.-]+/,
+			atMangaRegex: /https:\/\/.*\/manga\/[\w.\-~%]+$/,
+			titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
+			nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
+			prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
 		},
 		titleList: [],
 		ptApi: {
 			url: '',
 			bearerToken: '',
-		},
-		sites: {
-			manganato: {
-				name: 'manganato',
-				urls: [
-					'https://readmanganato.com',
-					'https://manganato.com',
-					'https://chapmanganato.com',
-					'https://chapmanganato.to',
-				],
-				active: false,
-				at: 'neither',
-				activeRegex: /https:\/\/(?:read|chap)?manganato\.(?:com|to)\S*/,
-				atChapterRegex:
-					/https:\/\/(?:read|chap)?manganato.(?:com|to)\/manga-[\w.\-~%]+\/chapter-[\d.-]+/,
-				atMangaRegex: /https:\/\/(?:read|chap)?manganato.(?:com|to)\/manga-[\w.\-~%]+$/,
-				titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
-				nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
-				prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
-			},
-			manganelo: {
-				name: 'manganelo',
-				urls: ['https://manganelo.com'],
-				active: false,
-				at: 'neither',
-				activeRegex: /https:\/\/manganelo\.com\S*/,
-				atChapterRegex: /https:\/\/(?:manganelo\.com)\/chapter\/[\w.\-~%]+\/[\w.\-~%]+/,
-				atMangaRegex: /https:\/\/(?:manganelo\.com)\/(?:manga\/[\w.\-~%]+|read-[\w.\-~%]+)/,
-				titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
-				nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
-				prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
-			},
 		},
 	};
 
@@ -155,6 +159,7 @@ function mangaReadingScript() {
 					loadResource = false;
 			}
 		}
+
 		return loadResource;
 	}
 
@@ -163,71 +168,46 @@ function mangaReadingScript() {
 		{
 			name: 'manganatoOverrides',
 			data: '',
-			urls: [
-				'https://readmanganato.com',
-				'https://manganato.com',
-				'https://chapmanganato.com',
-				'https://chapmanganato.to',
-			],
+			urls,
 			at: 'site',
 			site: 'global',
-			shouldLoad: shouldLoad,
+			shouldLoad,
 			inline: true,
 		},
 		{
 			name: 'manganatoOverridesNeither',
 			data: '',
-			urls: [
-				'https://readmanganato.com',
-				'https://manganato.com',
-				'https://chapmanganato.com',
-				'https://chapmanganato.to',
-			],
+			urls,
 			at: 'site',
 			site: 'neither',
-			shouldLoad: shouldLoad,
+			shouldLoad,
 			inline: true,
 		},
 		{
 			name: 'manganatoOverridesChapter',
 			data: '',
-			urls: [
-				'https://readmanganato.com',
-				'https://manganato.com',
-				'https://chapmanganato.com',
-				'https://chapmanganato.to',
-			],
+			urls,
 			at: 'site',
 			site: 'chapter',
-			shouldLoad: shouldLoad,
+			shouldLoad,
 			inline: true,
 		},
 		{
 			name: 'manganatoOverridesManga',
 			data: '',
-			urls: [
-				'https://readmanganato.com',
-				'https://manganato.com',
-				'https://chapmanganato.com',
-				'https://chapmanganato.to',
-			],
+			urls,
 			at: 'site',
 			site: 'manga',
-			shouldLoad: shouldLoad,
+			shouldLoad,
 			inline: true,
 		},
 		{
 			name: 'manganatoOverridesChapterOrManga',
 			data: '',
-			urls: [
-				'https://readmanganato.com',
-				'https://manganato.com',
-				'https://chapmanganato.com',
-				'https://chapmanganato.to',
-			],
+			urls,
 			at: 'site',
 			site: 'chapterOrManga',
-			shouldLoad: shouldLoad,
+			shouldLoad,
 			inline: true,
 		},
 	];
@@ -256,9 +236,7 @@ function mangaReadingScript() {
 		class extends HTMLElement {
 			constructor() {
 				super();
-				const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(
-					containerTemplate.cloneNode(true)
-				);
+				this.attachShadow({ mode: 'open' }).appendChild(containerTemplate.cloneNode(true));
 			}
 		}
 	);
@@ -353,15 +331,15 @@ function mangaReadingScript() {
 	}
 
 	function atNeither() {
-		return globals.currentSite.at === 'neither';
+		return globals.site.at === 'neither';
 	}
 
 	function atChapter() {
-		return globals.currentSite.at === 'chapter';
+		return globals.site.at === 'chapter';
 	}
 
 	function atManga() {
-		return globals.currentSite.at === 'manga';
+		return globals.site.at === 'manga';
 	}
 
 	function atChapterOrManga() {
@@ -388,7 +366,7 @@ function mangaReadingScript() {
 	}
 
 	function resize() {
-		if (!globals.sites.manganato.active || !atChapter()) {
+		if (!globals.site.active || !atChapter()) {
 			return;
 		}
 
@@ -493,7 +471,7 @@ function mangaReadingScript() {
 	}
 
 	function goToFirstChapter() {
-		if (!globals.sites.manganato.active) {
+		if (!globals.site.active) {
 			return;
 		}
 
@@ -508,7 +486,7 @@ function mangaReadingScript() {
 	}
 
 	function goToLatestChapter() {
-		if (!globals.sites.manganato.active) {
+		if (!globals.site.active) {
 			return;
 		}
 
@@ -542,7 +520,7 @@ function mangaReadingScript() {
 		debug('Finding URLs...');
 
 		const titleLink = /** @type {HTMLAnchorElement | null}*/ (
-			document.querySelector(globals.currentSite.titleLinkSelector)
+			document.querySelector(globals.site.titleLinkSelector)
 		);
 
 		globals.currentTitle = titleLink?.innerText.trim().toLowerCase() ?? 'None';
@@ -555,7 +533,7 @@ function mangaReadingScript() {
 		}
 
 		const nextChapterLink = /** @type {HTMLAnchorElement | null}*/ (
-			document.querySelector(globals.currentSite.nextChapterSelector)
+			document.querySelector(globals.site.nextChapterSelector)
 		);
 
 		if (nextChapterLink) {
@@ -565,7 +543,7 @@ function mangaReadingScript() {
 		}
 
 		const prevChapterLink = /** @type {HTMLAnchorElement | null}*/ (
-			document.querySelector(globals.currentSite.prevChapterSelector)
+			document.querySelector(globals.site.prevChapterSelector)
 		);
 
 		if (prevChapterLink) {
@@ -596,7 +574,7 @@ function mangaReadingScript() {
 	}
 
 	function manganatoSiteOverrides() {
-		if (!globals.sites.manganato.active) {
+		if (!globals.site.active) {
 			return;
 		}
 
@@ -629,31 +607,24 @@ function mangaReadingScript() {
 	function setActiveSite() {
 		debug('Setting active site...');
 		const href = window.location.href;
-		/** @type {Array<manga_reading.siteType>} */
-		const sites = Object.values(globals.sites);
-		for (const site of sites) {
-			site.active = site.activeRegex.test(href);
-			if (!site.active) {
-				continue;
-			}
-			const atChapter = site.atChapterRegex.test(href);
-			const atManga = site.atMangaRegex.test(href);
 
-			switch (true) {
-				case atChapter:
-					site.at = 'chapter';
-					break;
-				case atManga:
-					site.at = 'manga';
-					break;
-				default:
-					site.at = 'neither';
-					break;
-			}
-			globals.currentSite = site;
-			break;
+		globals.site = globals.site;
+		const atChapter = globals.site.atChapterRegex.test(href);
+		const atManga = globals.site.atMangaRegex.test(href);
+
+		switch (true) {
+			case atChapter:
+				globals.site.at = 'chapter';
+				break;
+			case atManga:
+				globals.site.at = 'manga';
+				break;
+			default:
+				globals.site.at = 'neither';
+				break;
 		}
-		debug(`Set active site: ${globals.currentSite.name}`);
+
+		debug(`Set active site: ${globals.site.name}`);
 	}
 
 	/** @type {Array<HTMLDivElement>} */

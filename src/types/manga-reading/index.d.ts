@@ -5,7 +5,6 @@ namespace manga_reading {
 		urls: string[];
 		active: boolean;
 		at: 'neither' | 'chapter' | 'manga';
-		activeRegex: RegExp;
 		atChapterRegex: RegExp;
 		atMangaRegex: RegExp;
 		titleLinkSelector: string;
@@ -18,11 +17,7 @@ namespace manga_reading {
 		prevUrl: string;
 		currentTitle: string;
 		uiInitialized: boolean;
-		currentSite: SiteType;
-		sites: {
-			manganato: SiteType;
-			manganelo: SiteType;
-		};
+		site: SiteType;
 		titleList: string[];
 		ptApi: {
 			url: string;

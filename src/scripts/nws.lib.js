@@ -58,10 +58,10 @@ export default (() => {
 			constructor() {
 				super();
 				const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(
-					frameTemplate.cloneNode(true),
+					frameTemplate.cloneNode(true)
 				);
 			}
-		},
+		}
 	);
 
 	const outerFrame = document.createElement('nws-lib-frame');
@@ -334,6 +334,8 @@ export default (() => {
 		const loadResource =
 			resource.shouldLoad !== undefined ? resource.shouldLoad(resource) : shouldLoad(resource);
 
+		console.log('loadResource', loadResource);
+
 		if (!loadResource) {
 			debug(`Skipping ${resource.name} of type: ${resourceType}...`);
 			return;
@@ -504,7 +506,7 @@ export default (() => {
 	 */
 	function filterRegisteredShortcut(shortcutType) {
 		return registeredKeyUpShortCuts.filter(
-			(registered) => registered.shortcutType === shortcutType,
+			(registered) => registered.shortcutType === shortcutType
 		);
 	}
 
@@ -547,7 +549,7 @@ export default (() => {
 	 */
 	function unregisterKeyUp(name) {
 		const index = registeredKeyUpShortCuts.findIndex(
-			(registered) => registered.shortcut.name === name,
+			(registered) => registered.shortcut.name === name
 		);
 		if (index > -1) {
 			registeredKeyUpShortCuts.splice(index, 1);
@@ -587,7 +589,9 @@ export default (() => {
 			attachShortcutEvents();
 			console.log(`NWS - lib - ${GM.info.script.name} - Loaded.`);
 			await callback();
+			console.log(`NWS - lib - ${GM.info.script.name} - Loading resources.`);
 			await loadResources();
+			console.log(`NWS - lib - ${GM.info.script.name} - Loaded resources.`);
 			if (postCallback !== undefined) {
 				await postCallback();
 			}
