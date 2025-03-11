@@ -114,7 +114,6 @@ function mangaReadingScript() {
 		site: {
 			name: 'manganato',
 			urls,
-			active: true,
 			at: 'neither',
 			atChapterRegex: /\/manga\/[\w.\-~%]+\/chapter-[\d.-]+/,
 			atMangaRegex: /\/manga\/[\w.\-~%]+$/,
@@ -364,7 +363,7 @@ function mangaReadingScript() {
 	}
 
 	function resize() {
-		if (!globals.site.active || !atChapter()) {
+		if (!atChapter()) {
 			return;
 		}
 
@@ -469,10 +468,6 @@ function mangaReadingScript() {
 	}
 
 	function goToFirstChapter() {
-		if (!globals.site.active) {
-			return;
-		}
-
 		const firstChapter = /** @type {HTMLDivElement} */ (getChapterList().lastElementChild);
 		const firstChapterLink = /** @type {HTMLAnchorElement | null} */ (
 			firstChapter.querySelector('& > span > a')
@@ -543,7 +538,6 @@ function mangaReadingScript() {
 		);
 
 		if (prevChapterLink) {
-			console.log(prevChapterLink);
 			globals.prevUrl = prevChapterLink.href;
 		} else {
 			globals.prevUrl = titleLink.href;
@@ -571,10 +565,6 @@ function mangaReadingScript() {
 	}
 
 	function manganatoSiteOverrides() {
-		if (!globals.site.active) {
-			return;
-		}
-
 		document.querySelector('body .comments')?.remove();
 		document.querySelector('#fb-root')?.remove();
 		const div = document.createElement('div');
@@ -612,7 +602,6 @@ function mangaReadingScript() {
 		debug('Setting active site...');
 		const path = window.location.pathname;
 
-		globals.site = globals.site;
 		const atChapter = globals.site.atChapterRegex.test(path);
 		const atManga = globals.site.atMangaRegex.test(path);
 

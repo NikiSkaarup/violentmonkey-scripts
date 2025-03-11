@@ -3,7 +3,6 @@ namespace manga_reading {
 	type siteType = {
 		name: string;
 		urls: string[];
-		active: boolean;
 		at: 'neither' | 'chapter' | 'manga';
 		atChapterRegex: RegExp;
 		atMangaRegex: RegExp;
