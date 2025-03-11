@@ -114,13 +114,13 @@ function mangaReadingScript() {
 		site: {
 			name: 'manganato',
 			urls,
-			active: false,
+			active: true,
 			at: 'neither',
-			atChapterRegex: /https:\/\/.*\/manga\/[\w.\-~%]+\/chapter-[\d.-]+/,
-			atMangaRegex: /https:\/\/.*\/manga\/[\w.\-~%]+$/,
-			titleLinkSelector: '.panel-breadcrumb > a:nth-child(3)',
-			nextChapterSelector: 'a.navi-change-chapter-btn-next.a-h',
-			prevChapterSelector: 'a.navi-change-chapter-btn-prev.a-h',
+			atChapterRegex: /\/manga\/[\w.\-~%]+\/chapter-[\d.-]+/,
+			atMangaRegex: /\/manga\/[\w.\-~%]+$/,
+			titleLinkSelector: 'div.breadcrumb > p > span > a',
+			nextChapterSelector: '.btn-navigation-chap a.back', // ... wtf why are they reversed on their site..
+			prevChapterSelector: '.btn-navigation-chap a.next', // ... wtf why are they reversed on their site..
 		},
 		titleList: [],
 		ptApi: {
@@ -347,9 +347,7 @@ function mangaReadingScript() {
 	}
 
 	function getChapterList() {
-		return /** @type {HTMLElement} */ (
-			document.querySelector('div.panel-story-chapter-list > ul.row-content-chapter')
-		);
+		return /** @type {HTMLElement} */ (document.querySelector('div.chapter-list'));
 	}
 
 	/**
@@ -475,9 +473,9 @@ function mangaReadingScript() {
 			return;
 		}
 
-		const firstChapter = /** @type {HTMLElement} */ (getChapterList().lastElementChild);
+		const firstChapter = /** @type {HTMLDivElement} */ (getChapterList().lastElementChild);
 		const firstChapterLink = /** @type {HTMLAnchorElement | null} */ (
-			firstChapter.querySelector('a.chapter-name')
+			firstChapter.querySelector('& > span > a')
 		);
 
 		if (firstChapterLink !== null) {
@@ -490,9 +488,9 @@ function mangaReadingScript() {
 			return;
 		}
 
-		const latestChapter = /** @type {HTMLElement} */ (getChapterList().firstElementChild);
+		const latestChapter = /** @type {HTMLDivElement} */ (getChapterList().firstElementChild);
 		const latestChapterLink = /** @type {HTMLAnchorElement | null} */ (
-			latestChapter.querySelector('.chapter-name')
+			latestChapter.querySelector('& > span > a')
 		);
 
 		if (latestChapterLink !== null) {
@@ -510,24 +508,24 @@ function mangaReadingScript() {
 		if (globals.titleList.includes(globals.currentTitle)) {
 			margin = '0 auto';
 
-			setStyle(document.querySelectorAll('.container-chapter-reader > div'), 'display', 'none');
+			// setStyle(document.querySelectorAll('.container-chapter-reader > img'), 'display', 'none');
 		}
 
-		setStyle(document.querySelectorAll('.container-chapter-reader img'), 'margin', margin);
+		setStyle(document.querySelectorAll('.container-chapter-reader > img'), 'margin', margin);
 	}
 
 	function findUrls() {
 		debug('Finding URLs...');
 
-		const titleLink = /** @type {HTMLAnchorElement | null}*/ (
-			document.querySelector(globals.site.titleLinkSelector)
-		);
+		/** @type {NodeListOf<HTMLAnchorElement>}*/
+		const links = document.querySelectorAll(globals.site.titleLinkSelector);
+		const titleLink = links[1];
 
 		globals.currentTitle = titleLink?.innerText.trim().toLowerCase() ?? 'None';
 
 		setSubTitle();
 
-		if (!atChapter() || titleLink === null) {
+		if (!atChapter() || titleLink === undefined) {
 			debug('Found URLs.');
 			return;
 		}
@@ -547,6 +545,7 @@ function mangaReadingScript() {
 		);
 
 		if (prevChapterLink) {
+			console.log(prevChapterLink);
 			globals.prevUrl = prevChapterLink.href;
 		} else {
 			globals.prevUrl = titleLink.href;
@@ -578,19 +577,26 @@ function mangaReadingScript() {
 			return;
 		}
 
-		document.querySelector('.body-site > .container .panel-fb-comment')?.remove();
-		document.querySelector('body > #fb-root')?.remove();
-		document.querySelector('.body-site > .container-footer')?.remove();
+		document.querySelector('body .comments')?.remove();
+		document.querySelector('#fb-root')?.remove();
+		const div = document.createElement('div');
+		div.id = 'current-time';
+		div.style.display = 'none';
+		document.body.appendChild(div);
+		document.querySelector('body > footer')?.remove();
+
+		const containers = document.querySelectorAll('.ads-contain');
+		containers.forEach((container) => container.remove());
 
 		if (atChapter()) {
 			const chapterContainer = document.querySelector('.container-chapter-reader');
 			chapterContainer?.nextSibling?.remove();
 			chapterContainer?.nextSibling?.remove();
 
-			const firstContainer = document.querySelector('.body-site > .container:first-of-type');
-			firstContainer?.classList.add('overrides-header-container');
-			const lastContainer = document.querySelector('.body-site > .container:last-of-type');
-			lastContainer?.classList.add('overrides-footer-container');
+			const removables = document.querySelectorAll(
+				'body > div.info-top-chapter > p.info-top-chapter-text'
+			);
+			removables.forEach((removable) => removable.remove());
 		}
 
 		if (!atChapterOrManga()) {
@@ -606,11 +612,11 @@ function mangaReadingScript() {
 
 	function setActiveSite() {
 		debug('Setting active site...');
-		const href = window.location.href;
+		const path = window.location.pathname;
 
 		globals.site = globals.site;
-		const atChapter = globals.site.atChapterRegex.test(href);
-		const atManga = globals.site.atMangaRegex.test(href);
+		const atChapter = globals.site.atChapterRegex.test(path);
+		const atManga = globals.site.atMangaRegex.test(path);
 
 		switch (true) {
 			case atChapter:
@@ -637,7 +643,9 @@ function mangaReadingScript() {
 	 */
 	function genreAllGoToPage(direction) {
 		const pageSelected = /** @type {HTMLAnchorElement | null} */ (
-			document.querySelector('.panel-page-number > .group-page > a.page-select:not(.page-blue)')
+			document.querySelector(
+				'div.panel_page_number > .group_page > a.page-select:not(.page_blue)'
+			)
 		);
 		if (!pageSelected) return;
 
@@ -661,7 +669,7 @@ function mangaReadingScript() {
 		genreAllItems = [
 			.../** @type {Array<HTMLDivElement>} */ (
 				/** @type {any} */ (
-					document.querySelectorAll('div.panel-content-genres > div.content-genres-item')
+					document.querySelectorAll('div.truyen-list > div.list-truyen-item-wrap')
 				)
 			),
 		];
@@ -674,7 +682,7 @@ function mangaReadingScript() {
 
 	function genreAllOpenMangaInNewTab() {
 		const anchor = /** @type {HTMLAnchorElement|null} */ (
-			genreAllItems[genreAllItemsIndex].querySelector('.genres-item-img')
+			genreAllItems[genreAllItemsIndex].querySelector('.list-story-item')
 		);
 
 		if (anchor) {
@@ -1107,7 +1115,8 @@ function mangaReadingScript() {
 			e.code === 'ArrowLeft' &&
 			shortcutHelpers.noModifier(e) &&
 			!chapterOrManga &&
-			window.location.href.includes('/genre-all')
+			(window.location.pathname.startsWith('/genre/all') ||
+				window.location.pathname.startsWith('/manga-list/latest-manga'))
 		) {
 			genreAllGoToPage(e.code);
 			return true;
@@ -1127,7 +1136,8 @@ function mangaReadingScript() {
 			e.code === 'ArrowRight' &&
 			shortcutHelpers.noModifier(e) &&
 			!chapterOrManga &&
-			window.location.href.includes('/genre-all')
+			(window.location.pathname.startsWith('/genre/all') ||
+				window.location.pathname.startsWith('/manga-list/latest-manga'))
 		) {
 			genreAllGoToPage(e.code);
 			return true;
@@ -1137,7 +1147,8 @@ function mangaReadingScript() {
 			e.code === 'ArrowUp' &&
 			shortcutHelpers.shiftModifier(e) &&
 			!chapterOrManga &&
-			window.location.href.includes('/genre-all')
+			(window.location.pathname.startsWith('/genre/all') ||
+				window.location.pathname.startsWith('/manga-list/latest-manga'))
 		) {
 			genreAllBrowse(e.code);
 			return true;
@@ -1147,7 +1158,8 @@ function mangaReadingScript() {
 			e.code === 'ArrowDown' &&
 			shortcutHelpers.shiftModifier(e) &&
 			!chapterOrManga &&
-			window.location.href.includes('/genre-all')
+			(window.location.pathname.startsWith('/genre/all') ||
+				window.location.pathname.startsWith('/manga-list/latest-manga'))
 		) {
 			genreAllBrowse(e.code);
 			return true;
@@ -1157,7 +1169,8 @@ function mangaReadingScript() {
 			e.code === 'ArrowLeft' &&
 			shortcutHelpers.shiftModifier(e) &&
 			!chapterOrManga &&
-			window.location.href.includes('/genre-all')
+			(window.location.pathname.startsWith('/genre/all') ||
+				window.location.pathname.startsWith('/manga-list/latest-manga'))
 		) {
 			genreAllBrowse(e.code);
 			return true;
@@ -1167,7 +1180,8 @@ function mangaReadingScript() {
 			e.code === 'ArrowRight' &&
 			shortcutHelpers.shiftModifier(e) &&
 			!chapterOrManga &&
-			window.location.href.includes('/genre-all')
+			(window.location.pathname.startsWith('/genre/all') ||
+				window.location.pathname.startsWith('/manga-list/latest-manga'))
 		) {
 			genreAllBrowse(e.code);
 			return true;
@@ -1177,7 +1191,8 @@ function mangaReadingScript() {
 			e.code === 'Enter' &&
 			shortcutHelpers.shiftModifier(e) &&
 			!chapterOrManga &&
-			window.location.href.includes('/genre-all')
+			(window.location.pathname.startsWith('/genre/all') ||
+				window.location.pathname.startsWith('/manga-list/latest-manga'))
 		) {
 			genreAllOpenMangaInNewTab();
 			return true;

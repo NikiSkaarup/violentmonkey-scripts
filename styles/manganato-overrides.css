@@ -4,10 +4,16 @@ body {
 	border-top: 0px !important;
 }
 
+body > div,
+body > header,
+body > footer {
+	isolation: isolate;
+}
+
 body::before {
 	inset: 0;
 	content: '';
-	position: absolute;
+	position: fixed;
 	z-index: 0; /* Ensure this is below the main content */
 	pointer-events: none;
 	backdrop-filter: contrast(1.2) brightness(0.75);
