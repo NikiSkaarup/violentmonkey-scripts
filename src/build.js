@@ -38,15 +38,10 @@ await $`mkdir -p ./build`;
 // copy static css to build output
 await $`cp ./styles/*.css ./build/`;
 await $`bunx @tailwindcss/cli@next --optimize -i src/styles/nws-lib.css -o build/nws-lib.css`;
-await $`bunx @tailwindcss/cli@next --optimize -i src/styles/manga-reading-script.css -o build/manga-reading-script.css`;
 
 const nwsLibFile = Bun.file('./build/nws-lib.css');
 const nwsLibBuilt = await nwsLibFile.text();
 nwsLibFile.writer().write(nwsLibBuilt.replaceAll(':root', ':root, :host'));
-
-const mrsFile = Bun.file('./build/manga-reading-script.css');
-const mrsBuilt = await mrsFile.text();
-mrsFile.writer().write(mrsBuilt.replaceAll(':root', ':root, :host'));
 
 const userScripts = new Glob('./src/**/*.user.js').scan('.');
 
@@ -58,7 +53,6 @@ for await (const userScript of userScripts) {
 
 	console.log(`Building ${fileName}...`);
 
-	const src = `./src/${fileName}`;
 	const dest = `./build/${fileName}`;
 
 	const buildResult = await Bun.build({
